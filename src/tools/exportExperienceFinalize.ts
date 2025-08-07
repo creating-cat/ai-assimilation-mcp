@@ -151,7 +151,7 @@ export const exportExperienceFinalizeTool = {
       const response: ExportExperienceFinalizeOutput = {
         success: true,
         directory_path: directoryPath,
-        manifest_path: writeResult.data?.path || join(directoryPath, 'manifest.json'),
+        manifest_path: join(directoryPath, 'manifest.json'),
         total_files: fileList.length,
         total_size: totalSize,
         file_list: fileList,

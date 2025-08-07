@@ -5,13 +5,22 @@
 
 import { z } from 'zod';
 import { logger } from '../utils/logger.js';
-import { exportManager } from '../server/exportManager.js';
+import { getExperienceDirectoryPath } from '../utils/experience.js';
+import {
+  readJsonFile,
+  writeExperienceMetadata,
+  getDirectoryInfo,
+  readConversationBatch,
+  deleteFile,
+} from '../utils/fileOperations.js';
+import { ExperienceMetadata, ExperienceSummary } from '../types/index.js';
+import { join } from 'path';
+import { promises as fs } from 'fs';
+import { loadConfig } from '../config/index.js';
 
 // Input schema validation
 export const exportExperienceFinalizeSchema = z.object({
-  export_id: z.string()
-    .min(1, 'エクスポート処理識別子は必須です')
-    .describe('エクスポート処理識別子')
+  session_id: z.string().min(1, 'セッション識別子は必須です').describe('エクスポートセッションの識別子'),
 });
 
 export type ExportExperienceFinalizeInput = z.infer<typeof exportExperienceFinalizeSchema>;
@@ -62,33 +71,90 @@ export const exportExperienceFinalizeTool = {
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {
     const startTime = Date.now();
-    logger.info('Export experience finalize tool execution started', { 
-      exportId: args.export_id
-    });
+    const config = loadConfig();
+    logger.info('Export experience finalize tool execution started', { sessionId: args.session_id });
 
     try {
       // Validate input
-      const validatedInput = exportExperienceFinalizeSchema.parse(args);
+      const { session_id } = exportExperienceFinalizeSchema.parse(args);
+      const directoryPath = getExperienceDirectoryPath(session_id);
 
-      // Finalize export
-      const result = await exportManager.finalizeExport(validatedInput.export_id);
+      // 1. Read initial data from summary.json
+      const summaryFilePath = join(directoryPath, 'summary.json');
+      const initialDataResult = await readJsonFile<{
+        summary: ExperienceSummary;
+        metadata: Record<string, any>;
+        created_at: string;
+      }>(summaryFilePath, false);
+
+      if (!initialDataResult.success || !initialDataResult.data) {
+        throw new Error(`Failed to read initial summary data: ${initialDataResult.error}`);
+      }
+      const { summary, metadata, created_at } = initialDataResult.data;
+
+      // 2. Scan directory for created files
+      const allFiles = await fs.readdir(directoryPath);
+      const conversationFiles = allFiles.filter(f => f.startsWith('conversations_') && f.endsWith('.json')).sort();
+
+      // 3. Calculate total conversations
+      let totalConversations = 0;
+      for (const file of conversationFiles) {
+        const batchResult = await readConversationBatch(join(directoryPath, file));
+        if (batchResult.success && batchResult.data) {
+          totalConversations += batchResult.data.conversations.length;
+        }
+      }
+
+      // 4. Construct manifest data
+      const manifest: ExperienceMetadata = {
+        mcp_version: config.server.version,
+        ai_name: summary.ai_name,
+        ai_context: summary.ai_context,
+        experience_nature: summary.experience_nature,
+        experience_summary: summary.experience_summary,
+        experience_flow: summary.experience_flow,
+        main_topics: summary.main_topics,
+        files: {
+          conversations: conversationFiles,
+          insights: allFiles.includes('insights.json') ? 'insights.json' : '',
+          patterns: allFiles.includes('patterns.json') ? 'patterns.json' : '',
+          preferences: allFiles.includes('preferences.json') ? 'preferences.json' : '',
+        },
+        total_conversations: totalConversations,
+        session_id: session_id,
+        created_at: created_at,
+        custom_metadata: metadata,
+      };
+
+      // 5. Write manifest.json
+      const writeResult = await writeExperienceMetadata(directoryPath, manifest);
+      if (!writeResult.success) {
+        throw new Error(`Failed to write manifest.json: ${writeResult.error}`);
+      }
+
+      // 6. Clean up temporary summary file
+      await deleteFile(summaryFilePath);
+
+      // 7. Get final directory info
+      const finalDirInfo = await getDirectoryInfo(directoryPath);
+      const totalSize = finalDirInfo.data?.size || 0;
+      const fileList = finalDirInfo.data?.files || [];
 
       const executionTime = Date.now() - startTime;
       logger.info('Export experience finalize tool execution completed', {
-        success: result.success,
-        totalFiles: result.total_files,
-        totalSize: result.total_size,
+        success: true,
+        totalFiles: fileList.length,
+        totalSize: totalSize,
         executionTime
       });
 
       const response: ExportExperienceFinalizeOutput = {
-        success: result.success,
-        directory_path: result.directory_path,
-        manifest_path: result.manifest_path,
-        total_files: result.total_files,
-        total_size: result.total_size,
-        file_list: result.file_list,
-        error: result.error
+        success: true,
+        directory_path: directoryPath,
+        manifest_path: writeResult.data?.path || join(directoryPath, 'manifest.json'),
+        total_files: fileList.length,
+        total_size: totalSize,
+        file_list: fileList,
       };
 
       return {

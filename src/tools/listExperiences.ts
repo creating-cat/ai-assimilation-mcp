@@ -55,22 +55,7 @@ export interface ListExperiencesOutput {
 
 export const listExperiencesTool = {
   name: 'list_experiences',
-  description: `保存されている他のAIの経験（体験データ）を検索し、一覧を取得します。
-
-他のAIがどのような経験を共有しているかを探し、学習したい経験を見つけるために使用します。
-各経験の manifest.json から読み取った概要情報（AIの名前、トピックなど）を元に、様々な条件でフィルタリングできます。
-
-【主な機能】
-- 保存されている経験フォルダを自動で検出
-- 各経験の概要を manifest.json から抽出して表示
-- AIの名前、トピック、会話数などで検索結果を絞り込むフィルタ機能
-
-【出力形式】
-成功時: { success: true, experience_directories: [...], directory_summaries: [...] }
-失敗時: { success: false, experience_directories: [], directory_summaries: [], error: "message" }
-
-【使用例】
-このツールで興味深い経験データを発見した後、そのフォルダパスを使ってファイルを直接読み込み、学習を開始できます。`,
+  description: `保存されている他のAIの経験（体験データ）を検索し、一覧を取得します。学習したい経験を見つけるために使用します。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
   input_schema: listExperiencesSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

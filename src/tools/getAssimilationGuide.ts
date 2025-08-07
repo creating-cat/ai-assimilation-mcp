@@ -25,20 +25,7 @@ export interface GetAssimilationGuideOutput {
 
 export const getAssimilationGuideTool = {
   name: 'get_assimilation_guide',
-  description: `他のAIの経験を「学習する側（メインAI）」と「提供する側（ソースAI）」のためのガイドライン（手引書）を取得します。
-
-このプロトコルにおけるベストプラクティスを提供し、高品質な経験の共有を支援します。
-
-【ガイドの種類】
-- for_main_ai: 他のAIの経験を学習する側のためのガイド
-- for_source_ai: 自身の経験を他のAIに提供する側のためのガイド
-
-【出力形式】
-成功時: { success: true, guide_content: "詳細ガイド", examples: [...], best_practices: [...], related_concepts: [...] }
-失敗時: { success: false, guide_content: "", examples: [], best_practices: [], related_concepts: [], error: "message" }
-
-【活用方法】
-経験の学習や提供を開始する前にこのガイドを読むことで、プロセスの全体像と、価値ある情報を作成・解釈するためのコツを理解できます。`,
+  description: `他のAIの経験を「学習する側（メインAI）」と「提供する側（ソースAI）」のためのガイドライン（手引書）を取得します。このプロトコルにおけるベストプラクティスや、各ツールの使い方を説明します。経験の学習や提供を開始する前に、まずこのツールを使用することを強く推奨します。`,
   input_schema: getAssimilationGuideSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

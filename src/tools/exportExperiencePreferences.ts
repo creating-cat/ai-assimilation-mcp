@@ -32,16 +32,7 @@ export interface ExportExperiencePreferencesOutput {
 
 export const exportExperiencePreferencesTool = {
   name: 'export_experience_preferences',
-  description: `AIが対話を通じて学習した「ユーザーの好み」や「成功したアプローチ」を、preferences.jsonファイルに書き出します。
-
-どのような応答が好まれたか、どんなアプローチが効果的だったか、といった情報を保存することで、対話の質を再現・向上させるのに役立ちます。
-
-【主な機能】
-- ユーザーの好みや成功したアプローチをオブジェクト形式でファイルに保存
-
-【出力形式】
-成功時: { success: true, file_path: "path/preferences.json", items_count: 1 }
-失敗時: { success: false, file_path: "", items_count: 0, error: "message" }`,
+  description: `AIが対話を通じて学習した「ユーザーの好み」や「成功したアプローチ」を、preferences.jsonファイルに書き出します。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
   input_schema: exportExperiencePreferencesSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

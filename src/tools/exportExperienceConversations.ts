@@ -41,18 +41,7 @@ export interface ExportExperienceConversationsOutput {
 
 export const exportExperienceConversationsTool = {
   name: 'export_experience_conversations',
-  description: `指定されたセッションの会話履歴（チャットログ）を、まとまった単位（バッチ）でJSONファイルに書き出します。
-
-大量の会話を一度に送るのではなく、このツールを使って複数回に分けて送信することで、効率的にデータを保存できます。
-
-【主な機能】
-- 会話データをバッチとしてファイルに保存
-- バッチ番号に基づいたファイル名（例: conversations_001.json）を自動生成
-- 処理した会話数やファイルサイズを報告
-
-【出力形式】
-成功時: { success: true, file_path: "path", processed_count: 50, batch_file_size: 1024 }
-失敗時: { success: false, file_path: "", processed_count: 0, batch_file_size: 0, error: "message" }`,
+  description: `指定されたセッションの会話履歴（チャットログ）を、まとまった単位（バッチ）でJSONファイルに書き出します。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
   input_schema: exportExperienceConversationsSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

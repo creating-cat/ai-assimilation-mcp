@@ -34,17 +34,7 @@ export interface ExportExperiencePatternsOutput {
 
 export const exportExperiencePatternsTool = {
   name: 'export_experience_patterns',
-  description: `AIが学習した「推論パターン」や「思考のクセ」を、patterns.jsonファイルに書き出します。
-
-問題解決の方法や、効果的だった思考プロセスなどをパターンとして保存することで、他のAIがそのアプローチを学習できます。
-
-【主な機能】
-- 複数の推論パターンをリスト形式でファイルに保存
-- 各パターンには、種類、説明、具体例、効果などを記録可能
-
-【出力形式】
-成功時: { success: true, file_path: "path/patterns.json", items_count: 3 }
-失敗時: { success: false, file_path: "", items_count: 0, error: "message" }`,
+  description: `AIが学習した「推論パターン」や「思考のクセ」を、patterns.jsonファイルに書き出します。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
   input_schema: exportExperiencePatternsSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

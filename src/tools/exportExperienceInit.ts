@@ -42,19 +42,7 @@ export interface ExportExperienceInitOutput {
 
 export const exportExperienceInitTool = {
   name: 'export_experience_init',
-  description: `AIの経験をファイルとして保存（エクスポート）する準備を開始します。
-
-このツールは、一連のチャットや学習内容を保存するためのセッションを開始し、必要なフォルダを作成します。
-ここで開始したセッションID（session_id）は、後続のツールで共通して使用します。
-
-【主な機能】
-- エクスポート用のフォルダを作成
-- このセッションを識別するためのユニークなsession_idを返す
-- 保存されるファイル構成の予測を返す
-
-【出力形式】
-成功時: { success: true, session_id: "uuid", directory_path: "path", expected_files: {...} }
-失敗時: { success: false, session_id: "", directory_path: "", expected_files: {}, error: "message" }`,
+  description: `AIの経験をファイルとして保存（エクスポート）するセッションを開始し、準備を整えます。このプロセスの最初のステップです。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
   input_schema: exportExperienceInitSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

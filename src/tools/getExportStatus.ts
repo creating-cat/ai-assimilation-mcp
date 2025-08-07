@@ -21,25 +21,7 @@ export type GetExportStatusInput = z.infer<typeof getExportStatusSchema>;
 
 export const getExportStatusTool = {
   name: 'get_export_status',
-  description: `指定されたセッションIDのエクスポート（ファイル保存）がどこまで進んでいるか、現在の状態を確認します。
-
-サーバーが再起動したり、処理が中断したりした場合でも、このツールを使えばファイルの状態から進捗を正確に判断できます。
-これにより、どこから処理を再開すればよいかが分かります。
-
-【判定ロジック】
-- ディレクトリが存在しない -> 'not_found'
-- manifest.json が存在する -> 'completed'
-- 何らかのファイルが存在する（manifest.json以外） -> 'in_progress'
-- ディレクトリのみ存在し、ファイルがない -> 'initializing'
-
-【出力情報】
-- status: 現在の状態
-- created_files: 作成済みのファイル一覧
-- next_batch_number: 次に送信すべき会話バッチの番号
-
-【出力形式】
-成功時: { status: 'in_progress', directory_path: "path", created_files: [...], next_batch_number: 2 }
-失敗時: { status: 'not_found', error: "message" }`,
+  description: `指定されたセッションIDのエクスポート（ファイル保存）がどこまで進んでいるか、現在の状態を確認します。中断した処理を再開する際に便利です。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
   input_schema: getExportStatusSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

@@ -37,22 +37,7 @@ export interface ExportExperienceFinalizeOutput {
 
 export const exportExperienceFinalizeTool = {
   name: 'export_experience_finalize',
-  description: `一連の経験ファイルのエクスポートを完了させ、全体のまとめファイルである manifest.json を生成します。
-
-このツールは、これまで作成した全てのファイル（会話、洞察など）をリストアップし、体験全体の概要を記録します。
-このツールを実行すると、エクスポートセッションは完了と見なされます。
-
-【主な機能】
-- ディレクトリ内の全ファイルをスキャンし、manifest.json を生成
-- 総会話数の自動計算
-- エクスポート処理を完了させる
-
-【出力形式】
-成功時: { success: true, directory_path: "path", manifest_path: "path/manifest.json", total_files: 5, total_size: 1024, file_list: [...] }
-失敗時: { success: false, directory_path: "", manifest_path: "", total_files: 0, total_size: 0, file_list: [], error: "message" }
-
-【使用タイミング】
-全てのコンポーネント（conversations, insights, patterns, preferences）のエクスポートが完了した後に実行してください。`,
+  description: `一連の経験ファイルのエクスポートを完了させ、全体のまとめファイルである manifest.json を生成します。このプロセスの最後のステップです。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
   input_schema: exportExperienceFinalizeSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

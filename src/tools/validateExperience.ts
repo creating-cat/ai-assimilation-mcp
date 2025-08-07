@@ -19,27 +19,7 @@ export type ValidateExperienceInput = z.infer<typeof validateExperienceSchema>;
 
 export const validateExperienceTool = {
   name: 'validate_experience',
-  description: `指定された経験フォルダ（体験データ）のファイル構成や内容が、プロトコルのルールに沿っているか検証します。
-
-他のAIの経験を読み込む前にこのツールを実行することで、データが壊れていないか、必要なファイルが揃っているかなどを確認でき、安全に処理を進められます。
-
-【主な検証項目】
-- patterns.json: 推論パターン
-- preferences.json: 学習嗜好
-
-【出力形式】
-成功時: { valid: true, manifest_valid: true, semantic_valid: true, file_validations: [...], missing_files: [], errors: [], warnings: [...] }
-失敗時: { valid: false, manifest_valid: false, semantic_valid: false, file_validations: [...], missing_files: [...], errors: [...], warnings: [...] }
-
-【使用タイミング】
-- 体験データを読み込む前の事前チェック
-- データ品質の確認
-- 破損したファイルの検出
-- 不完全なエクスポートの発見
-
-【メインAIの活用方法】
-検証結果を確認してから体験データの読み込みを開始することで、
-エラーを回避し、信頼性の高い同化プロセスを実現できます。`,
+  description: `指定された経験フォルダ（体験データ）のファイル構成や内容が、プロトコルのルールに沿っているか検証します。安全に経験を読み込むために使用します。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
   input_schema: validateExperienceSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

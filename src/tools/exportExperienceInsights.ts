@@ -35,17 +35,7 @@ export interface ExportExperienceInsightsOutput {
 
 export const exportExperienceInsightsTool = {
   name: 'export_experience_insights',
-  description: `一連のやり取りからAIが学習した「洞察」や「重要な気づき」を、insights.jsonファイルに書き出します。
-
-単なる会話の記録だけでなく、そこから得られた学びや発見を構造化して保存することで、経験の価値を高めます。
-
-【主な機能】
-- 複数の洞察をリスト形式でファイルに保存
-- 各洞察には、トピック、内容、発見日時、根拠などを記録可能
-
-【出力形式】
-成功時: { success: true, file_path: "path/insights.json", items_count: 5 }
-失敗時: { success: false, file_path: "", items_count: 0, error: "message" }`,
+  description: `一連のやり取りからAIが学習した「洞察」や「重要な気づき」を、insights.jsonファイルに書き出します。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
   input_schema: exportExperienceInsightsSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

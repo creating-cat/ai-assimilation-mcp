@@ -4,6 +4,7 @@
  */
 
 import { z } from 'zod';
+import { DirectoryValidationResult, FileValidation, ValidationError } from '../types/index.js';
 import { logger } from '../utils/logger.js';
 import { validateExperienceDirectoryFiles } from '../utils/fileOperations.js';
 
@@ -15,25 +16,6 @@ export const validateExperienceSchema = z.object({
 });
 
 export type ValidateExperienceInput = z.infer<typeof validateExperienceSchema>;
-
-export interface ValidateExperienceOutput {
-  valid: boolean;
-  manifest_valid: boolean;
-  semantic_valid: boolean;
-  file_validations: Array<{
-    file: string;
-    valid: boolean;
-    errors: Array<{
-      field: string;
-      message: string;
-      value?: any;
-    }>;
-    warnings: string[];
-  }>;
-  missing_files: string[];
-  errors: string[];
-  warnings: string[];
-}
 
 export const validateExperienceTool = {
   name: 'validate_experience',
@@ -106,19 +88,19 @@ export const validateExperienceTool = {
         executionTime
       });
 
-      const response: ValidateExperienceOutput = {
+      const response: DirectoryValidationResult = {
         valid: validationResult.valid,
         manifest_valid: validationResult.manifest_valid,
         semantic_valid: validationResult.semantic_valid,
-        file_validations: validationResult.file_validations.map(fv => ({
+        file_validations: validationResult.file_validations.map((fv: FileValidation) => ({
           file: fv.file,
           valid: fv.valid,
-          errors: fv.errors.map(error => ({
-            field: error.field || 'unknown',
-            message: error.message || 'Unknown error',
+          errors: fv.errors.map((error: ValidationError) => ({
+            field: error.field,
+            message: error.message,
             value: error.value
           })),
-          warnings: fv.warnings || []
+          warnings: fv.warnings
         })),
         missing_files: validationResult.missing_files,
         errors: validationResult.errors,
@@ -137,7 +119,7 @@ export const validateExperienceTool = {
         executionTime
       });
 
-      const errorResponse: ValidateExperienceOutput = {
+      const errorResponse: DirectoryValidationResult = {
         valid: false,
         manifest_valid: false,
         semantic_valid: false,

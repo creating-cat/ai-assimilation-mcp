@@ -27,6 +27,16 @@ export interface ExperienceMetadata {
   custom_metadata?: Record<string, any>;
 }
 
+export interface ExperienceSummary {
+  ai_name: string;
+  ai_context: string;
+  experience_nature: string;
+  experience_summary: string;
+  experience_flow: string[];
+  main_topics: string[];
+  estimated_conversations: number;
+}
+
 export interface ConversationBatch {
   batch_info: {
     batch_number: number;
@@ -84,6 +94,8 @@ export interface ExportSession {
   status: 'initializing' | 'in_progress' | 'completed' | 'failed';
   expected_files: Record<string, number>;
   created_files: string[];
+  summary: ExperienceSummary;
+  metadata: Record<string, any>;
 }
 
 export interface ExperienceDirectoryInfo {
@@ -104,15 +116,24 @@ export interface ExperienceDirectoryInfo {
   platform?: string;
 }
 
-export interface ValidationResult {
+export interface ValidationError {
+  field: string;
+  message: string;
+  value?: any;
+}
+
+export interface FileValidation {
+  file: string;
+  valid: boolean;
+  errors: ValidationError[];
+  warnings: string[];
+}
+
+export interface DirectoryValidationResult {
   valid: boolean;
   manifest_valid: boolean;
   semantic_valid: boolean;
-  file_validations: Array<{
-    file: string;
-    valid: boolean;
-    errors: string[];
-  }>;
+  file_validations: FileValidation[];
   missing_files: string[];
   errors: string[];
   warnings: string[];

@@ -11,9 +11,10 @@ import {
   Insight, 
   ReasoningPattern, 
   LearnedPreferences,
-  ExperienceDirectoryInfo
+  ExperienceDirectoryInfo,
+  DirectoryValidationResult
 } from '../types/index.js';
-import { validateFileContent, DirectoryValidationResult, validateExperienceDirectory } from './validation.js';
+import { validateFileContent, validateExperienceDirectory } from './validation.js';
 import { logger } from './logger.js';
 
 export interface FileOperationResult<T = any> {

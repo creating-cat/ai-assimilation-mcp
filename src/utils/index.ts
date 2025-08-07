@@ -54,8 +54,6 @@ export {
   validateFileContent,
   validateExperienceDirectory
 } from './validation.js';
-export type { 
-  ValidationError as ValidationErrorType, 
-  ValidationResult, 
-  DirectoryValidationResult 
+export type {
+  ValidationResult
 } from './validation.js';

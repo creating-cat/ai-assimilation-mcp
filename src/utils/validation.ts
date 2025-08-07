@@ -18,7 +18,9 @@ import {
   ConversationBatch, 
   Insight, 
   ReasoningPattern, 
-  LearnedPreferences 
+  LearnedPreferences,
+  ValidationError,
+  DirectoryValidationResult
 } from '../types/index.js';
 
 // Initialize AJV with formats support
@@ -37,12 +39,6 @@ const validators = {
   patterns: ajv.compile(reasoningPatternsSchema),
   preferences: ajv.compile(learnedPreferencesSchema as any) // Type assertion for complex schema
 } as const;
-
-export interface ValidationError {
-  field: string;
-  message: string;
-  value?: any;
-}
 
 export interface ValidationResult {
   valid: boolean;
@@ -216,21 +212,6 @@ export function validateFileContent(filename: string, content: unknown): Validat
 /**
  * Validate complete experience directory structure
  */
-export interface DirectoryValidationResult {
-  valid: boolean;
-  manifest_valid: boolean;
-  semantic_valid: boolean;
-  file_validations: Array<{
-    file: string;
-    valid: boolean;
-    errors: ValidationError[];
-    warnings: string[];
-  }>;
-  missing_files: string[];
-  errors: string[];
-  warnings: string[];
-}
-
 export function validateExperienceDirectory(
   manifest: ExperienceMetadata,
   files: Record<string, unknown>

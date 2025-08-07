@@ -1,98 +1,69 @@
 /**
- * Simple logging utility for AI Assimilation MCP Server
+ * Logger utility for structured logging
+ * Adapted for MCP server environment
  */
 
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+export enum LogLevel {
+  ERROR = 'ERROR',
+  WARN = 'WARN',
+  INFO = 'INFO',
+  DEBUG = 'DEBUG'
+}
 
 export interface LogEntry {
-  timestamp: Date;
+  timestamp: string;
   level: LogLevel;
   message: string;
-  context?: Record<string, any>;
+  data?: any;
 }
 
 export class Logger {
-  private level: LogLevel;
-  private enableFileLogging: boolean;
-  private logDirectory: string;
+  private logLevel: LogLevel;
 
-  constructor(level: LogLevel = 'info', enableFileLogging = false, logDirectory = './logs') {
-    this.level = level;
-    this.enableFileLogging = enableFileLogging;
-    this.logDirectory = logDirectory;
+  constructor(logLevel: LogLevel = LogLevel.INFO) {
+    this.logLevel = logLevel;
   }
 
   private shouldLog(level: LogLevel): boolean {
-    const levels: Record<LogLevel, number> = {
-      debug: 0,
-      info: 1,
-      warn: 2,
-      error: 3
-    };
-    return levels[level] >= levels[this.level];
+    const levels = [LogLevel.ERROR, LogLevel.WARN, LogLevel.INFO, LogLevel.DEBUG];
+    return levels.indexOf(level) <= levels.indexOf(this.logLevel);
   }
 
-  private formatMessage(level: LogLevel, message: string, context?: Record<string, any>): string {
-    const timestamp = new Date().toISOString();
-    const contextStr = context ? ` ${JSON.stringify(context)}` : '';
-    return `[${timestamp}] ${level.toUpperCase()}: ${message}${contextStr}`;
-  }
+  private log(level: LogLevel, message: string, data?: any): void {
+    if (!this.shouldLog(level)) return;
 
-  debug(message: string, context?: Record<string, any>): void {
-    if (this.shouldLog('debug')) {
-      console.debug(this.formatMessage('debug', message, context));
-    }
-  }
-
-  info(message: string, context?: Record<string, any>): void {
-    if (this.shouldLog('info')) {
-      console.info(this.formatMessage('info', message, context));
-    }
-  }
-
-  warn(message: string, context?: Record<string, any>): void {
-    if (this.shouldLog('warn')) {
-      console.warn(this.formatMessage('warn', message, context));
-    }
-  }
-
-  error(message: string, context?: Record<string, any>): void {
-    if (this.shouldLog('error')) {
-      console.error(this.formatMessage('error', message, context));
-    }
-  }
-
-  // Create a child logger with additional context
-  child(context: Record<string, any>): Logger {
-    const childLogger = new Logger(this.level, this.enableFileLogging, this.logDirectory);
+    // In production MCP servers, only log errors to avoid interfering with protocol communication
+    // In development, allow all logs if DEBUG_MCP is set
+    const isDebugMode = process.env.DEBUG_MCP === 'true';
     
-    // Override methods to include context
-    const originalMethods = {
-      debug: childLogger.debug.bind(childLogger),
-      info: childLogger.info.bind(childLogger),
-      warn: childLogger.warn.bind(childLogger),
-      error: childLogger.error.bind(childLogger)
-    };
+    if (level === LogLevel.ERROR || isDebugMode) {
+      const entry: LogEntry = {
+        timestamp: new Date().toISOString(),
+        level,
+        message,
+        ...(data && { data })
+      };
+      console.error(JSON.stringify(entry));
+    }
+  }
 
-    childLogger.debug = (message: string, additionalContext?: Record<string, any>) => {
-      originalMethods.debug(message, { ...context, ...additionalContext });
-    };
+  error(message: string, data?: any): void {
+    this.log(LogLevel.ERROR, message, data);
+  }
 
-    childLogger.info = (message: string, additionalContext?: Record<string, any>) => {
-      originalMethods.info(message, { ...context, ...additionalContext });
-    };
+  warn(message: string, data?: any): void {
+    this.log(LogLevel.WARN, message, data);
+  }
 
-    childLogger.warn = (message: string, additionalContext?: Record<string, any>) => {
-      originalMethods.warn(message, { ...context, ...additionalContext });
-    };
+  info(message: string, data?: any): void {
+    this.log(LogLevel.INFO, message, data);
+  }
 
-    childLogger.error = (message: string, additionalContext?: Record<string, any>) => {
-      originalMethods.error(message, { ...context, ...additionalContext });
-    };
-
-    return childLogger;
+  debug(message: string, data?: any): void {
+    this.log(LogLevel.DEBUG, message, data);
   }
 }
 
-// Global logger instance
-export const logger = new Logger();
+export const logger = new Logger(
+  process.env.LOG_LEVEL as LogLevel || LogLevel.INFO
+);

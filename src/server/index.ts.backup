@@ -15,13 +15,17 @@ import { MCPConfig } from '../config/index.js';
 import { logger } from '../utils/logger.js';
 import { ErrorHandler } from '../utils/errors.js';
 import { MCPResponse } from '../types/index.js';
+import { ExportManager } from './exportManager.js';
 
 export class AIAssimilationMCPServer {
   private server: Server;
   private config: MCPConfig;
+  private exportManager: ExportManager;
 
   constructor(config: MCPConfig) {
     this.config = config;
+    this.exportManager = new ExportManager(config.storage.baseDirectory);
+    
     this.server = new Server(
       {
         name: config.server.name,
@@ -37,7 +41,8 @@ export class AIAssimilationMCPServer {
     this.setupHandlers();
     logger.info('AI Assimilation MCP Server initialized', {
       name: config.server.name,
-      version: config.server.version
+      version: config.server.version,
+      baseDirectory: config.storage.baseDirectory
     });
   }
 
@@ -209,89 +214,319 @@ export class AIAssimilationMCPServer {
     ];
   }
 
-  // Placeholder implementations - will be implemented in subsequent tasks
+  // Export tool implementations
   private async handleExportInit(args: any): Promise<any> {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: false,
-            error: 'Not implemented yet - will be implemented in task 3.1'
-          }, null, 2)
+    try {
+      // Validate required parameters
+      const { session_id, output_directory, metadata, summary } = args;
+      
+      if (!session_id || !output_directory || !metadata || !summary) {
+        throw new Error('Missing required parameters: session_id, output_directory, metadata, summary');
+      }
+
+      // Validate summary structure
+      const requiredSummaryFields = [
+        'ai_name', 'ai_context', 'experience_nature', 
+        'experience_summary', 'experience_flow', 'main_topics', 'estimated_conversations'
+      ];
+      
+      for (const field of requiredSummaryFields) {
+        if (!(field in summary)) {
+          throw new Error(`Missing required summary field: ${field}`);
         }
-      ]
-    };
+      }
+
+      // Initialize export
+      const result = await this.exportManager.initializeExport({
+        session_id,
+        output_directory,
+        metadata,
+        summary
+      });
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2)
+          }
+        ]
+      };
+
+    } catch (error) {
+      logger.error('Export initialization failed', { 
+        error: error instanceof Error ? error.message : String(error),
+        args 
+      });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              success: false,
+              export_id: '',
+              directory_path: '',
+              expected_files: {},
+              error: error instanceof Error ? error.message : String(error)
+            }, null, 2)
+          }
+        ]
+      };
+    }
   }
 
   private async handleExportConversations(args: any): Promise<any> {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: false,
-            error: 'Not implemented yet - will be implemented in task 3.2'
-          }, null, 2)
-        }
-      ]
-    };
+    try {
+      // Validate required parameters
+      const { export_id, conversations_batch, batch_number, is_final_batch } = args;
+      
+      if (!export_id || !conversations_batch || batch_number === undefined) {
+        throw new Error('Missing required parameters: export_id, conversations_batch, batch_number');
+      }
+
+      if (!Array.isArray(conversations_batch)) {
+        throw new Error('conversations_batch must be an array');
+      }
+
+      if (typeof batch_number !== 'number' || batch_number < 1) {
+        throw new Error('batch_number must be a positive integer');
+      }
+
+      // Export conversation batch
+      const result = await this.exportManager.exportConversationBatch({
+        export_id,
+        conversations_batch,
+        batch_number,
+        is_final_batch: is_final_batch || false
+      });
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2)
+          }
+        ]
+      };
+
+    } catch (error) {
+      logger.error('Conversation batch export failed', { 
+        error: error instanceof Error ? error.message : String(error),
+        args 
+      });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              success: false,
+              file_path: '',
+              processed_count: 0,
+              batch_file_size: 0,
+              error: error instanceof Error ? error.message : String(error)
+            }, null, 2)
+          }
+        ]
+      };
+    }
   }
 
   private async handleExportInsights(args: any): Promise<any> {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: false,
-            error: 'Not implemented yet - will be implemented in task 3.3'
-          }, null, 2)
-        }
-      ]
-    };
+    try {
+      // Validate required parameters
+      const { export_id, insights } = args;
+      
+      if (!export_id || !insights) {
+        throw new Error('Missing required parameters: export_id, insights');
+      }
+
+      if (!Array.isArray(insights)) {
+        throw new Error('insights must be an array');
+      }
+
+      // Export insights
+      const result = await this.exportManager.exportInsights({
+        export_id,
+        data: insights
+      });
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2)
+          }
+        ]
+      };
+
+    } catch (error) {
+      logger.error('Insights export failed', { 
+        error: error instanceof Error ? error.message : String(error),
+        args 
+      });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              success: false,
+              file_path: '',
+              items_count: 0,
+              error: error instanceof Error ? error.message : String(error)
+            }, null, 2)
+          }
+        ]
+      };
+    }
   }
 
   private async handleExportPatterns(args: any): Promise<any> {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: false,
-            error: 'Not implemented yet - will be implemented in task 3.4'
-          }, null, 2)
-        }
-      ]
-    };
+    try {
+      // Validate required parameters
+      const { export_id, reasoning_patterns } = args;
+      
+      if (!export_id || !reasoning_patterns) {
+        throw new Error('Missing required parameters: export_id, reasoning_patterns');
+      }
+
+      if (!Array.isArray(reasoning_patterns)) {
+        throw new Error('reasoning_patterns must be an array');
+      }
+
+      // Export patterns
+      const result = await this.exportManager.exportPatterns({
+        export_id,
+        data: reasoning_patterns
+      });
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2)
+          }
+        ]
+      };
+
+    } catch (error) {
+      logger.error('Patterns export failed', { 
+        error: error instanceof Error ? error.message : String(error),
+        args 
+      });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              success: false,
+              file_path: '',
+              items_count: 0,
+              error: error instanceof Error ? error.message : String(error)
+            }, null, 2)
+          }
+        ]
+      };
+    }
   }
 
   private async handleExportPreferences(args: any): Promise<any> {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: false,
-            error: 'Not implemented yet - will be implemented in task 3.5'
-          }, null, 2)
-        }
-      ]
-    };
+    try {
+      // Validate required parameters
+      const { export_id, learned_preferences } = args;
+      
+      if (!export_id || !learned_preferences) {
+        throw new Error('Missing required parameters: export_id, learned_preferences');
+      }
+
+      if (typeof learned_preferences !== 'object') {
+        throw new Error('learned_preferences must be an object');
+      }
+
+      // Export preferences
+      const result = await this.exportManager.exportPreferences({
+        export_id,
+        data: learned_preferences
+      });
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2)
+          }
+        ]
+      };
+
+    } catch (error) {
+      logger.error('Preferences export failed', { 
+        error: error instanceof Error ? error.message : String(error),
+        args 
+      });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              success: false,
+              file_path: '',
+              items_count: 0,
+              error: error instanceof Error ? error.message : String(error)
+            }, null, 2)
+          }
+        ]
+      };
+    }
   }
 
   private async handleExportFinalize(args: any): Promise<any> {
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify({
-            success: false,
-            error: 'Not implemented yet - will be implemented in task 3.6'
-          }, null, 2)
-        }
-      ]
-    };
+    try {
+      // Validate required parameters
+      const { export_id } = args;
+      
+      if (!export_id) {
+        throw new Error('Missing required parameter: export_id');
+      }
+
+      // Finalize export
+      const result = await this.exportManager.finalizeExport(export_id);
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2)
+          }
+        ]
+      };
+
+    } catch (error) {
+      logger.error('Export finalization failed', { 
+        error: error instanceof Error ? error.message : String(error),
+        args 
+      });
+      
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              success: false,
+              directory_path: '',
+              manifest_path: '',
+              total_files: 0,
+              total_size: 0,
+              file_list: [],
+              error: error instanceof Error ? error.message : String(error)
+            }, null, 2)
+          }
+        ]
+      };
+    }
   }
 
   private async handleListExperiences(args: any): Promise<any> {

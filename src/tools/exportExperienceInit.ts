@@ -6,8 +6,10 @@
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
-import { exportManager } from '../server/exportManager.js';
 import { loadConfig } from '../config/index.js';
+import { getExperienceDirectoryPath } from '../utils/experience.js';
+import { ensureDirectory, writeJsonFile } from '../utils/fileOperations.js';
+import { join } from 'path';
 
 const config = loadConfig();
 
@@ -16,9 +18,6 @@ export const exportExperienceInitSchema = z.object({
   session_id: z.string()
     .optional()
     .describe('セッション識別子（省略時はUUIDを自動生成）'),
-  output_directory: z.string()
-    .optional()
-    .describe('出力ディレクトリパス（省略時はデフォルト設定を使用）'),
   metadata: z.object({})
     .passthrough()
     .describe('セッションメタデータ'),
@@ -37,7 +36,7 @@ export type ExportExperienceInitInput = z.infer<typeof exportExperienceInitSchem
 
 export interface ExportExperienceInitOutput {
   success: boolean;
-  export_id: string;
+  session_id: string;
   directory_path: string;
   expected_files: Record<string, number>;
   error?: string;
@@ -75,30 +74,51 @@ export const exportExperienceInitTool = {
       // Validate input
       const validatedInput = exportExperienceInitSchema.parse(args);
 
-      const sessionId = validatedInput.session_id || uuidv4();
-      const outputDirectory = validatedInput.output_directory || config.storage.baseDirectory;
+      const session_id = validatedInput.session_id || uuidv4();
+      const directoryPath = getExperienceDirectoryPath(session_id);
 
-      // Initialize export
-      const result = await exportManager.initializeExport({
-        session_id: sessionId,
-        output_directory: outputDirectory,
+      // Ensure output directory exists
+      const dirResult = await ensureDirectory(directoryPath);
+      if (!dirResult.success) {
+        throw new Error(`Failed to create export directory: ${dirResult.error}`);
+      }
+
+      // Store summary and metadata to be used by finalize tool later
+      const initialData = {
+        summary: validatedInput.summary,
         metadata: validatedInput.metadata,
-        summary: validatedInput.summary
-      });
+        session_id: session_id,
+        created_at: new Date().toISOString(),
+      };
+      // This temporary file will be read by the finalize tool
+      const summaryFilePath = join(directoryPath, 'summary.json');
+      const writeResult = await writeJsonFile(summaryFilePath, initialData, false); // No schema for this temp file
+      if (!writeResult.success) {
+        throw new Error(`Failed to write initial summary file: ${writeResult.error}`);
+      }
+
+      // Calculate expected files
+      const estimatedBatches = Math.ceil(validatedInput.summary.estimated_conversations / config.storage.conversationBatchSize);
+      const expected_files: Record<string, number> = {
+        manifest: 1,
+        conversation_batches: estimatedBatches,
+        insights: 1,
+        patterns: 1,
+        preferences: 1
+      };
 
       const executionTime = Date.now() - startTime;
       logger.info('Export experience init tool execution completed', {
-        success: result.success,
-        exportId: result.export_id,
+        success: true,
+        sessionId: session_id,
         executionTime
       });
 
       const response: ExportExperienceInitOutput = {
-        success: result.success,
-        export_id: result.export_id,
-        directory_path: result.directory_path,
-        expected_files: result.expected_files,
-        error: result.error
+        success: true,
+        session_id,
+        directory_path: directoryPath,
+        expected_files,
       };
 
       return {
@@ -115,7 +135,7 @@ export const exportExperienceInitTool = {
 
       const errorResponse: ExportExperienceInitOutput = {
         success: false,
-        export_id: '',
+        session_id: '',
         directory_path: '',
         expected_files: {},
         error: errorMessage

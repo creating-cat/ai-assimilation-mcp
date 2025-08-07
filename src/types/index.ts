@@ -126,51 +126,6 @@ export interface AssimilationGuide {
   related_concepts: string[];
 }
 
-// MCP Tool Response Types
-export interface MCPResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  warnings?: string[];
-}
-
-export interface ExportInitResponse extends MCPResponse {
-  data?: {
-    export_id: string;
-    directory_path: string;
-    expected_files: Record<string, number>;
-  };
-}
-
-export interface FileCreateResponse extends MCPResponse {
-  data?: {
-    file_path: string;
-    file_size: number;
-    items_count: number;
-  };
-}
-
-export interface ExportFinalizeResponse extends MCPResponse {
-  data?: {
-    directory_path: string;
-    manifest_path: string;
-    total_files: number;
-    total_size: number;
-    file_list: string[];
-  };
-}
-
-export interface ListExperiencesResponse extends MCPResponse {
-  data?: {
-    experience_directories: ExperienceDirectoryInfo[];
-    directory_summaries: Array<{
-      directory: string;
-      summary: string;
-      file_count: number;
-    }>;
-  };
-}
-
 // Re-export utility types
 export type { FileOperationResult, DirectoryInfo } from '../utils/fileOperations.js';
 

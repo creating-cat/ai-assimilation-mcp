@@ -1,8 +1,9 @@
 {
   "name": "ai-assimilation-mcp",
-  "version": "1.0.0",
-  "description": "AI Assimilation MCP Server - Enable AI experience sharing and assimilation",
+  "version": "0.1.0",
+  "description": "AI Assimilation MCP Server - Enable AI experience sharing and assimilation through structured data export and human-like learning",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
     "build": "tsc",
@@ -11,17 +12,39 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src/**/*.ts",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "prepare": "npm run build"
+  },
+  "bin": {
+    "ai-assimilation-mcp": "dist/index.js"
   },
   "keywords": [
     "mcp",
     "ai",
     "assimilation",
     "experience-sharing",
-    "model-context-protocol"
+    "model-context-protocol",
+    "ai-learning",
+    "knowledge-transfer",
+    "persona-separation",
+    "structured-data",
+    "typescript"
   ],
-  "author": "",
+  "author": "creating-cat (https://creating-cat.com/)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/ai-assimilation-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/ai-assimilation-mcp/issues"
+  },
+  "homepage": "https://github.com/your-username/ai-assimilation-mcp#readme",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.17.1",
     "ajv": "^8.17.1",

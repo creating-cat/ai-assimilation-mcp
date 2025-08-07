@@ -19,28 +19,11 @@ export type ValidateExperienceInput = z.infer<typeof validateExperienceSchema>;
 
 export const validateExperienceTool = {
   name: 'validate_experience',
-  description: `体験データディレクトリの整合性検証
+  description: `指定された経験フォルダ（体験データ）のファイル構成や内容が、プロトコルのルールに沿っているか検証します。
 
-このツールは体験データディレクトリの完全性と整合性を検証します。
-メインAIが体験データを読み込む前に、データの品質を確認するために使用します。
+他のAIの経験を読み込む前にこのツールを実行することで、データが壊れていないか、必要なファイルが揃っているかなどを確認でき、安全に処理を進められます。
 
 【主な検証項目】
-- manifest.jsonの存在と形式検証
-- 必須ファイルの存在確認
-- 各ファイルのJSON形式検証
-- データ構造の整合性チェック
-- クロスファイル整合性（会話数の一致など）
-
-【検証レベル】
-1. **構文検証**: JSON形式の正確性
-2. **スキーマ検証**: 必須フィールドの存在
-3. **セマンティック検証**: データ間の論理的整合性
-4. **クロスファイル検証**: ファイル間の整合性
-
-【検証対象ファイル】
-- manifest.json: メタデータとファイル情報
-- conversations_*.json: 会話データバッチ
-- insights.json: 洞察データ
 - patterns.json: 推論パターン
 - preferences.json: 学習嗜好
 

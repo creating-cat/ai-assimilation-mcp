@@ -21,11 +21,10 @@ export type GetExportStatusInput = z.infer<typeof getExportStatusSchema>;
 
 export const getExportStatusTool = {
   name: 'get_export_status',
-  description: `指定されたセッションIDのエクスポート状態を動的に確認します。
+  description: `指定されたセッションIDのエクスポート（ファイル保存）がどこまで進んでいるか、現在の状態を確認します。
 
-サーバーが状態を保持しないステートレスアーキテクチャにおいて、このツールは
-ファイルシステムの実際の状態からエクスポートの進捗を判定します。
-サーバーの再起動やクラッシュ後でも、このツールを使えばどこから処理を再開すればよいか判断できます。
+サーバーが再起動したり、処理が中断したりした場合でも、このツールを使えばファイルの状態から進捗を正確に判断できます。
+これにより、どこから処理を再開すればよいかが分かります。
 
 【判定ロジック】
 - ディレクトリが存在しない -> 'not_found'
@@ -40,7 +39,7 @@ export const getExportStatusTool = {
 
 【出力形式】
 成功時: { status: 'in_progress', directory_path: "path", created_files: [...], next_batch_number: 2 }
-失敗時: { status: 'not_found', directory_path: "", created_files: [], next_batch_number: 1, error: "message" }`,
+失敗時: { status: 'not_found', error: "message" }`,
   input_schema: getExportStatusSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

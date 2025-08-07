@@ -42,26 +42,19 @@ export interface ExportExperienceInitOutput {
 
 export const exportExperienceInitTool = {
   name: 'export_experience_init',
-  description: `体験データエクスポートの初期化とディレクトリ構造作成
+  description: `AIの経験をファイルとして保存（エクスポート）する準備を開始します。
 
-このツールは体験データのエクスポートプロセスを開始し、必要なディレクトリ構造を作成します。
-エクスポートセッションを管理するためのユニークなexport_idを生成し、後続のエクスポート操作で使用します。
+このツールは、一連のチャットや学習内容を保存するためのセッションを開始し、必要なフォルダを作成します。
+ここで開始したセッションID（session_id）は、後続のツールで共通して使用します。
 
 【主な機能】
-- エクスポート用ディレクトリの作成
-- ユニークなexport_idの生成
-- 推定ファイル数の計算
-- エクスポートセッションの初期化
+- エクスポート用のフォルダを作成
+- このセッションを識別するためのユニークなsession_idを返す
+- 保存されるファイル構成の予測を返す
 
 【出力形式】
-成功時: { success: true, export_id: "uuid", directory_path: "path", expected_files: {...} }
-失敗時: { success: false, export_id: "", directory_path: "", expected_files: {}, error: "message" }
-
-【使用例】
-1. export_experience_init でセッション初期化
-2. export_experience_conversations で会話データをバッチ出力
-3. export_experience_insights/patterns/preferences で各コンポーネント出力
-4. export_experience_finalize でmanifest.json生成と完了`,
+成功時: { success: true, session_id: "uuid", directory_path: "path", expected_files: {...} }
+失敗時: { success: false, session_id: "", directory_path: "", expected_files: {}, error: "message" }`,
   input_schema: exportExperienceInitSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

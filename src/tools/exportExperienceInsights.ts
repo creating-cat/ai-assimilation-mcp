@@ -35,25 +35,13 @@ export interface ExportExperienceInsightsOutput {
 
 export const exportExperienceInsightsTool = {
   name: 'export_experience_insights',
-  description: `洞察データの個別ファイル出力
+  description: `一連のやり取りからAIが学習した「洞察」や「重要な気づき」を、insights.jsonファイルに書き出します。
 
-このツールは体験から得られた洞察データをinsights.jsonファイルに出力します。
-AIが学習した重要な気づきや発見を構造化して保存します。
+単なる会話の記録だけでなく、そこから得られた学びや発見を構造化して保存することで、経験の価値を高めます。
 
 【主な機能】
-- 洞察データの構造化出力
-- insights.jsonファイルの作成
-- 証拠や信頼度情報の保持
-- 関連会話との紐付け
-
-【洞察データの構造】
-- topic: 洞察のトピック（例: "ユーザーコミュニケーション"）
-- insight: 具体的な洞察内容
-- timestamp: 発見日時
-- evidence: 根拠となる証拠（オプション）
-- confidence: 信頼度（0-1、オプション）
-- analysis_method: 分析手法（オプション）
-- related_conversations: 関連会話のインデックス（オプション）
+- 複数の洞察をリスト形式でファイルに保存
+- 各洞察には、トピック、内容、発見日時、根拠などを記録可能
 
 【出力形式】
 成功時: { success: true, file_path: "path/insights.json", items_count: 5 }

@@ -37,29 +37,15 @@ export interface ExportExperienceFinalizeOutput {
 
 export const exportExperienceFinalizeTool = {
   name: 'export_experience_finalize',
-  description: `エクスポート処理の完了とマニフェストファイル生成
+  description: `一連の経験ファイルのエクスポートを完了させ、全体のまとめファイルである manifest.json を生成します。
 
-このツールはエクスポートプロセスを完了し、manifest.jsonファイルを生成します。
-全ての体験データファイルの整合性を確認し、メインAIが読み込み可能な形式で統合情報を提供します。
+このツールは、これまで作成した全てのファイル（会話、洞察など）をリストアップし、体験全体の概要を記録します。
+このツールを実行すると、エクスポートセッションは完了と見なされます。
 
 【主な機能】
-- manifest.jsonファイルの生成
-- ファイル整合性の確認
+- ディレクトリ内の全ファイルをスキャンし、manifest.json を生成
 - 総会話数の自動計算
-- エクスポートセッションの完了処理
-
-【manifest.jsonの内容】
-- mcp_version: MCPプロトコルバージョン
-- ai_name: AIの名前（体験提供者）
-- ai_context: AIのコンテキスト
-- experience_nature: 体験の性質
-- experience_summary: 体験の概要
-- experience_flow: 体験の流れ
-- files: 含まれるファイル情報
-- main_topics: 主要トピック
-- total_conversations: 総会話数
-- session_id: セッション識別子
-- created_at: 作成日時
+- エクスポート処理を完了させる
 
 【出力形式】
 成功時: { success: true, directory_path: "path", manifest_path: "path/manifest.json", total_files: 5, total_size: 1024, file_list: [...] }

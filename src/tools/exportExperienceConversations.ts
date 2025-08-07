@@ -41,21 +41,14 @@ export interface ExportExperienceConversationsOutput {
 
 export const exportExperienceConversationsTool = {
   name: 'export_experience_conversations',
-  description: `会話履歴データのバッチ単位での個別ファイル出力
+  description: `指定されたセッションの会話履歴（チャットログ）を、まとまった単位（バッチ）でJSONファイルに書き出します。
 
-このツールは会話データを50件単位のバッチに分けて個別のJSONファイルに出力します。
-大量の会話データを効率的に処理し、ファイルサイズを適切に管理します。
+大量の会話を一度に送るのではなく、このツールを使って複数回に分けて送信することで、効率的にデータを保存できます。
 
 【主な機能】
-- 会話データのバッチ処理（推奨50件単位）
-- 個別バッチファイルの作成（conversations_001.json形式）
-- バッチ情報の自動生成（開始・終了インデックス）
-- ファイルサイズと処理件数の報告
-
-【バッチファイル形式】
-- conversations_001.json: 1-50件目
-- conversations_002.json: 51-100件目
-- conversations_003.json: 101-150件目
+- 会話データをバッチとしてファイルに保存
+- バッチ番号に基づいたファイル名（例: conversations_001.json）を自動生成
+- 処理した会話数やファイルサイズを報告
 
 【出力形式】
 成功時: { success: true, file_path: "path", processed_count: 50, batch_file_size: 1024 }

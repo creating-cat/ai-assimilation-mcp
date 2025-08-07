@@ -32,23 +32,12 @@ export interface ExportExperiencePreferencesOutput {
 
 export const exportExperiencePreferencesTool = {
   name: 'export_experience_preferences',
-  description: `学習した嗜好データの個別ファイル出力
+  description: `AIが対話を通じて学習した「ユーザーの好み」や「成功したアプローチ」を、preferences.jsonファイルに書き出します。
 
-このツールはAIが学習したユーザーの嗜好や成功パターンをpreferences.jsonファイルに出力します。
-対話を通じて学習した相手の好みや効果的なアプローチを構造化して保存します。
+どのような応答が好まれたか、どんなアプローチが効果的だったか、といった情報を保存することで、対話の質を再現・向上させるのに役立ちます。
 
 【主な機能】
-- 学習嗜好の構造化出力
-- preferences.jsonファイルの作成
-- ユーザー嗜好と成功アプローチの記録
-- 学習アルゴリズムと適応率の保持
-
-【学習嗜好の構造】
-- user_preferences: ユーザーの嗜好（例: response_style, technical_level）
-- successful_approaches: 成功したアプローチ（例: ["直接的な回答", "具体例の提示"]）
-- learning_algorithm: 使用した学習アルゴリズム（オプション）
-- adaptation_rate: 適応率（0-1、オプション）
-- preference_confidence: 各嗜好の信頼度（オプション）
+- ユーザーの好みや成功したアプローチをオブジェクト形式でファイルに保存
 
 【出力形式】
 成功時: { success: true, file_path: "path/preferences.json", items_count: 1 }

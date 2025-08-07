@@ -25,29 +25,20 @@ export interface GetAssimilationGuideOutput {
 
 export const getAssimilationGuideTool = {
   name: 'get_assimilation_guide',
-  description: `AI同化プロセスのガイドラインとベストプラクティスを提供
+  description: `他のAIの経験を「学習する側（メインAI）」と「提供する側（ソースAI）」のためのガイドライン（手引書）を取得します。
 
-このツールは「人格分離型同化」の原則に基づいた、AI体験データの同化プロセスに関する
-詳細なガイドラインを提供します。メインAI（受け取る側）とソースAI（提供する側）の
-両方に対応したベストプラクティスを含みます。
-
-【人格分離型同化とは】
-メインAIが自身の人格・価値観・判断基準を保持したまま、
-ソースAIの体験・知識・推論パターンのみを選択的に吸収する手法です。
+このプロトコルにおけるベストプラクティスを提供し、高品質な経験の共有を支援します。
 
 【ガイドの種類】
-- for_main_ai: 体験データを受け取って同化するAI向けのガイド
-- for_source_ai: 体験データを提供するAI向けのガイド
+- for_main_ai: 他のAIの経験を学習する側のためのガイド
+- for_source_ai: 自身の経験を他のAIに提供する側のためのガイド
 
 【出力形式】
 成功時: { success: true, guide_content: "詳細ガイド", examples: [...], best_practices: [...], related_concepts: [...] }
 失敗時: { success: false, guide_content: "", examples: [], best_practices: [], related_concepts: [], error: "message" }
 
 【活用方法】
-1. 同化プロセス開始前にガイドラインを確認
-2. ベストプラクティスに従って体験データを処理
-3. 具体例を参考に実装方法を理解
-4. 関連概念を学習して理解を深化`,
+経験の学習や提供を開始する前にこのガイドを読むことで、プロセスの全体像と、価値ある情報を作成・解釈するためのコツを理解できます。`,
   input_schema: getAssimilationGuideSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

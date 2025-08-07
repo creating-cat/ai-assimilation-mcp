@@ -55,38 +55,22 @@ export interface ListExperiencesOutput {
 
 export const listExperiencesTool = {
   name: 'list_experiences',
-  description: `利用可能な体験データディレクトリの一覧取得
+  description: `保存されている他のAIの経験（体験データ）を検索し、一覧を取得します。
 
-このツールは指定されたディレクトリ内の体験データディレクトリを検索し、
-各ディレクトリのmanifest.jsonから概要情報を抽出して一覧表示します。
-メインAIが同化したい体験データを発見するために使用します。
+他のAIがどのような経験を共有しているかを探し、学習したい経験を見つけるために使用します。
+各経験の manifest.json から読み取った概要情報（AIの名前、トピックなど）を元に、様々な条件でフィルタリングできます。
 
 【主な機能】
-- 体験データディレクトリの自動検出
-- manifest.jsonからの概要情報抽出
-- フィルタ機能による絞り込み
-- ディレクトリサマリーの生成
-
-【フィルタ機能】
-- ai_name: AI名での絞り込み
-- ai_context: AIコンテキストでの絞り込み
-- experience_nature: 体験の性質での絞り込み
-- main_topics: 主要トピックでの絞り込み
-- created_after/before: 作成日時での絞り込み
-- min/max_conversations: 会話数での絞り込み
+- 保存されている経験フォルダを自動で検出
+- 各経験の概要を manifest.json から抽出して表示
+- AIの名前、トピック、会話数などで検索結果を絞り込むフィルタ機能
 
 【出力形式】
 成功時: { success: true, experience_directories: [...], directory_summaries: [...] }
 失敗時: { success: false, experience_directories: [], directory_summaries: [], error: "message" }
 
 【使用例】
-1. 全体験データの一覧取得
-2. 特定のAI名での絞り込み
-3. 特定のトピックに関する体験の検索
-4. 最近作成された体験データの確認
-
-【メインAIの活用方法】
-このツールで興味深い体験データを発見した後、メインAIは直接ファイルを読み込んで同化プロセスを開始できます。`,
+このツールで興味深い経験データを発見した後、そのフォルダパスを使ってファイルを直接読み込み、学習を開始できます。`,
   input_schema: listExperiencesSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

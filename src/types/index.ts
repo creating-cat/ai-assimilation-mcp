@@ -170,3 +170,9 @@ export interface ListExperiencesResponse extends MCPResponse {
     }>;
   };
 }
+
+// Re-export utility types
+export type { FileOperationResult, DirectoryInfo } from '../utils/fileOperations.js';
+
+// Re-export schema types
+export type { SchemaType } from './schemas.js';

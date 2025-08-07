@@ -16,6 +16,7 @@ import { exportExperienceFinalizeTool } from './tools/exportExperienceFinalize.j
 import { listExperiencesTool } from './tools/listExperiences.js';
 import { validateExperienceTool } from './tools/validateExperience.js';
 import { getAssimilationGuideTool } from './tools/getAssimilationGuide.js';
+import { getExportStatusTool } from './tools/getExportStatus.js';
 import { logger } from './utils/logger.js';
 import { loadConfig } from './config/index.js';
 
@@ -41,6 +42,33 @@ const server = new McpServer({
   version: config.server.version,
   description: config.server.description,
 });
+
+// 新しいステータス確認ツールを登録
+server.tool(
+  getExportStatusTool.name,
+  getExportStatusTool.description,
+  getExportStatusTool.input_schema.shape,
+  async (args) => {
+    try {
+      const result = await getExportStatusTool.execute(args);
+      return {
+        content: [{ type: "text", text: result.content[0].text }]
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error('Get export status tool execution error', { error: errorMessage });
+      return {
+        content: [{ 
+          type: "text", 
+          text: JSON.stringify({
+            status: 'not_found',
+            error: errorMessage
+          }, null, 2)
+        }]
+      };
+    }
+  }
+);
 
 // エクスポートツールを登録
 server.tool(

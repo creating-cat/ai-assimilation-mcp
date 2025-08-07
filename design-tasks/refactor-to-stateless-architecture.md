@@ -80,3 +80,56 @@
 - [ ] 関連するすべてのテストが更新され、パスしている。
 - [ ] `README.md` と設計書が、新しいアーキテクチャを反映するように更新されている。
 
+## 6. 実装ステップ
+
+このリファクタリングは、以下のステップで段階的に進めます。各ステップは独立して完了させることができ、安全な移行を可能にします。
+
+### ステップ 1: 準備 (新しいツールのための型定義とヘルパー関数)
+- **目的**: 新しいステートレスなツール群の土台を準備する。
+- **ファイル**:
+    - `src/types/index.ts`:
+        - `ExportSession` 型を削除。
+        - 新しい `get_export_status` ツールが返す `ExportStatusResult` 型を追加。
+    - `src/utils/experience.ts` (新規作成):
+        - `session_id` からディレクトリパスを安全に生成するヘルパー関数 `getExperienceDirectoryPath` を作成。
+    - `src/utils/index.ts`:
+        - 新しいヘルパー関数をエクスポートする。
+
+### ステップ 2: 新しい `get_export_status` ツールの実装
+- **目的**: 中断した処理の状態を確認し、再開を可能にするための新しいツールを導入する。
+- **ファイル**:
+    - `src/tools/getExportStatus.ts` (新規作成):
+        - ファイルシステムの構成から動的にエクスポート状態 (`completed`, `in_progress` など) を判定するロジックを実装。
+    - `src/index.ts`:
+        - 新しい `get_export_status` ツールをサーバーに登録。
+
+### ステップ 3: `exportExperienceInit` ツールのリファクタリング
+- **目的**: エクスポート処理の開始点をステートレス化する。
+- **ファイル**:
+    - `src/tools/exportExperienceInit.ts`:
+        - `ExportManager` への依存を削除。
+        - ステップ1で作成したヘルパー関数を使い、直接ディレクトリを作成するロジックに変更。
+        - 戻り値から `export_id` を削除し、`session_id` を返すように修正。
+
+### ステップ 4: 各データ書き込みツールのリファクタリング
+- **目的**: すべてのデータ書き込み処理をステートレス化する。
+- **ファイル**: `exportExperienceConversations.ts`, `exportExperienceInsights.ts`, `exportExperiencePatterns.ts`, `exportExperiencePreferences.ts`
+- **修正内容**:
+    - `export_id` の代わりに `session_id` を受け取るように入力スキーマとロジックを修正。
+    - `session_id` からディレクトリパスを特定し、直接ファイル操作を行うように変更。
+
+### ステップ 5: `exportExperienceFinalize` ツールのリファクタリング
+- **目的**: エクスポート処理の完了をステートレス化する。
+- **ファイル**: `src/tools/exportExperienceFinalize.ts`
+- **修正内容**:
+    - `session_id` を受け取るように修正。
+    - ディレクトリ内のファイル一覧を動的にスキャンし、最終的な `manifest.json` を生成するロジックに変更。
+
+### ステップ 6: クリーンアップとテスト修正
+- **目的**: 不要になったコードを削除し、リファクタリング後の品質を保証する。
+- **ファイル**:
+    - `src/server/exportManager.ts`: 削除。
+    - `src/__tests__/exportManager.test.ts`: 削除。
+    - `src/__tests__/` 配下の関連テストファイル:
+        - 各ツールのテストを、新しいステートレスな仕様に合わせて全面的に書き直す。
+        - `get_export_status` のための新しいテストファイルを作成する。

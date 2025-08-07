@@ -19,8 +19,8 @@ import {
   Insight, 
   ReasoningPattern, 
   LearnedPreferences,
-  ValidationError,
-  DirectoryValidationResult
+  ValidationErrorDetail,
+  DirectoryValidationResult,
 } from '../types/index.js';
 
 // Initialize AJV with formats support
@@ -42,7 +42,7 @@ const validators = {
 
 export interface ValidationResult {
   valid: boolean;
-  errors: ValidationError[];
+  errors: ValidationErrorDetail[];
   warnings: string[];
 }
 
@@ -56,7 +56,7 @@ export function validateData<T>(
   const validator = validators[schemaType];
   const valid = validator(data);
   
-  const errors: ValidationError[] = [];
+  const errors: ValidationErrorDetail[] = [];
   const warnings: string[] = [];
   
   if (!valid && validator.errors) {

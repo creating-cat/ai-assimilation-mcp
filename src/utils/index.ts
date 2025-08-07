@@ -43,6 +43,9 @@ export {
 } from './fileOperations.js';
 export type { FileOperationResult, DirectoryInfo } from './fileOperations.js';
 
+// Experience utilities
+export { getExperienceDirectoryPath } from './experience.js';
+
 // Validation
 export {
   validateData,

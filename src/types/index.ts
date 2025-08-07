@@ -86,18 +86,6 @@ export interface LearnedPreferences {
   preference_confidence?: Record<string, number>;
 }
 
-export interface ExportSession {
-  export_id: string;
-  directory_path: string;
-  session_id: string;
-  created_at: Date;
-  status: 'initializing' | 'in_progress' | 'completed' | 'failed';
-  expected_files: Record<string, number>;
-  created_files: string[];
-  summary: ExperienceSummary;
-  metadata: Record<string, any>;
-}
-
 export interface ExperienceDirectoryInfo {
   mcp_version: string;
   directory_path: string;
@@ -116,7 +104,7 @@ export interface ExperienceDirectoryInfo {
   platform?: string;
 }
 
-export interface ValidationError {
+export interface ValidationErrorDetail {
   field: string;
   message: string;
   value?: any;
@@ -125,7 +113,7 @@ export interface ValidationError {
 export interface FileValidation {
   file: string;
   valid: boolean;
-  errors: ValidationError[];
+  errors: ValidationErrorDetail[];
   warnings: string[];
 }
 
@@ -137,6 +125,17 @@ export interface DirectoryValidationResult {
   missing_files: string[];
   errors: string[];
   warnings: string[];
+}
+
+export type ExperienceStatus = 'completed' | 'in_progress' | 'initializing' | 'not_found';
+
+export interface ExportStatusResult {
+  status: ExperienceStatus;
+  directory_path: string;
+  created_files: string[];
+  next_batch_number: number;
+  error?: string;
+  warnings?: string[];
 }
 
 export interface AssimilationGuide {

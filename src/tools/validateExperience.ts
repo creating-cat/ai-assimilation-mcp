@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { DirectoryValidationResult, FileValidation, ValidationError } from '../types/index.js';
+import { DirectoryValidationResult, FileValidation, ValidationErrorDetail } from '../types/index.js';
 import { logger } from '../utils/logger.js';
 import { validateExperienceDirectoryFiles } from '../utils/fileOperations.js';
 
@@ -95,7 +95,7 @@ export const validateExperienceTool = {
         file_validations: validationResult.file_validations.map((fv: FileValidation) => ({
           file: fv.file,
           valid: fv.valid,
-          errors: fv.errors.map((error: ValidationError) => ({
+          errors: fv.errors.map((error: ValidationErrorDetail) => ({
             field: error.field,
             message: error.message,
             value: error.value

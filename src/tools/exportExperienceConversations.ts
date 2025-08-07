@@ -5,13 +5,17 @@
 
 import { z } from 'zod';
 import { logger } from '../utils/logger.js';
-import { exportManager } from '../server/exportManager.js';
+import { getExperienceDirectoryPath } from '../utils/experience.js';
+import { writeConversationBatch } from '../utils/fileOperations.js';
+import { ConversationBatch } from '../types/index.js';
+import { join } from 'path';
+import { loadConfig } from '../config/index.js';
+
+const config = loadConfig();
 
 // Input schema validation
 export const exportExperienceConversationsSchema = z.object({
-  export_id: z.string()
-    .min(1, 'エクスポート処理識別子は必須です')
-    .describe('エクスポート処理識別子'),
+  session_id: z.string().min(1, 'セッション識別子は必須です').describe('エクスポートセッションの識別子'),
   conversations_batch: z.array(z.object({
     timestamp: z.string().describe('タイムスタンプ'),
     user_input: z.string().describe('ユーザー入力'),
@@ -24,11 +28,7 @@ export const exportExperienceConversationsSchema = z.object({
   batch_number: z.number()
     .int()
     .min(1)
-    .describe('バッチ番号'),
-  is_final_batch: z.boolean()
-    .optional()
-    .default(false)
-    .describe('最終バッチかどうか')
+    .describe('バッチ番号')
 });
 
 export type ExportExperienceConversationsInput = z.infer<typeof exportExperienceConversationsSchema>;
@@ -66,38 +66,49 @@ export const exportExperienceConversationsTool = {
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {
     const startTime = Date.now();
-    logger.info('Export experience conversations tool execution started', { 
-      exportId: args.export_id,
+    logger.info('Export experience conversations tool execution started', {
+      sessionId: args.session_id,
       batchNumber: args.batch_number,
       conversationCount: args.conversations_batch?.length
     });
 
     try {
       // Validate input
-      const validatedInput = exportExperienceConversationsSchema.parse(args);
+      const { session_id, conversations_batch, batch_number } = exportExperienceConversationsSchema.parse(args);
 
-      // Export conversation batch
-      const result = await exportManager.exportConversationBatch({
-        export_id: validatedInput.export_id,
-        conversations_batch: validatedInput.conversations_batch,
-        batch_number: validatedInput.batch_number,
-        is_final_batch: validatedInput.is_final_batch
-      });
+      const directoryPath = getExperienceDirectoryPath(session_id);
+
+      const batch: ConversationBatch = {
+        batch_info: {
+          batch_number: batch_number,
+          count: conversations_batch.length,
+          start_index: (batch_number - 1) * config.storage.conversationBatchSize + 1,
+          end_index: (batch_number - 1) * config.storage.conversationBatchSize + conversations_batch.length,
+        },
+        conversations: conversations_batch,
+      };
+
+      const filename = `conversations_${String(batch_number).padStart(3, '0')}.json`;
+      const filePath = join(directoryPath, filename);
+
+      const writeResult = await writeConversationBatch(filePath, batch);
+      if (!writeResult.success) {
+        throw new Error(`Failed to write conversation batch: ${writeResult.error}`);
+      }
 
       const executionTime = Date.now() - startTime;
       logger.info('Export experience conversations tool execution completed', {
-        success: result.success,
-        batchNumber: validatedInput.batch_number,
-        processedCount: result.processed_count,
+        success: true,
+        batchNumber: batch_number,
+        processedCount: conversations_batch.length,
         executionTime
       });
 
       const response: ExportExperienceConversationsOutput = {
-        success: result.success,
-        file_path: result.file_path,
-        processed_count: result.processed_count,
-        batch_file_size: result.batch_file_size,
-        error: result.error
+        success: true,
+        file_path: filePath,
+        processed_count: conversations_batch.length,
+        batch_file_size: writeResult.data?.size || 0,
       };
 
       return {

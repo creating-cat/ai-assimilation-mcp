@@ -5,13 +5,13 @@
 
 import { z } from 'zod';
 import { logger } from '../utils/logger.js';
-import { exportManager } from '../server/exportManager.js';
+import { getExperienceDirectoryPath } from '../utils/experience.js';
+import { writeInsights } from '../utils/fileOperations.js';
+import { join } from 'path';
 
 // Input schema validation
 export const exportExperienceInsightsSchema = z.object({
-  export_id: z.string()
-    .min(1, 'エクスポート処理識別子は必須です')
-    .describe('エクスポート処理識別子'),
+  session_id: z.string().min(1, 'セッション識別子は必須です').describe('エクスポートセッションの識別子'),
   insights: z.array(z.object({
     topic: z.string().describe('洞察のトピック'),
     insight: z.string().describe('洞察内容'),
@@ -62,33 +62,34 @@ AIが学習した重要な気づきや発見を構造化して保存します。
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {
     const startTime = Date.now();
-    logger.info('Export experience insights tool execution started', { 
-      exportId: args.export_id,
+    logger.info('Export experience insights tool execution started', {
+      sessionId: args.session_id,
       insightsCount: args.insights?.length
     });
 
     try {
       // Validate input
-      const validatedInput = exportExperienceInsightsSchema.parse(args);
+      const { session_id, insights } = exportExperienceInsightsSchema.parse(args);
 
-      // Export insights
-      const result = await exportManager.exportInsights({
-        export_id: validatedInput.export_id,
-        data: validatedInput.insights
-      });
+      const directoryPath = getExperienceDirectoryPath(session_id);
+      const filePath = join(directoryPath, 'insights.json');
+
+      const writeResult = await writeInsights(filePath, insights);
+      if (!writeResult.success) {
+        throw new Error(`Failed to write insights file: ${writeResult.error}`);
+      }
 
       const executionTime = Date.now() - startTime;
       logger.info('Export experience insights tool execution completed', {
-        success: result.success,
-        itemsCount: result.items_count,
+        success: true,
+        itemsCount: insights.length,
         executionTime
       });
 
       const response: ExportExperienceInsightsOutput = {
-        success: result.success,
-        file_path: result.file_path,
-        items_count: result.items_count,
-        error: result.error
+        success: true,
+        file_path: filePath,
+        items_count: insights.length,
       };
 
       return {

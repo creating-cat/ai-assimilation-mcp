@@ -5,13 +5,13 @@
 
 import { z } from 'zod';
 import { logger } from '../utils/logger.js';
-import { exportManager } from '../server/exportManager.js';
+import { getExperienceDirectoryPath } from '../utils/experience.js';
+import { writeLearnedPreferences } from '../utils/fileOperations.js';
+import { join } from 'path';
 
 // Input schema validation
 export const exportExperiencePreferencesSchema = z.object({
-  export_id: z.string()
-    .min(1, 'エクスポート処理識別子は必須です')
-    .describe('エクスポート処理識別子'),
+  session_id: z.string().min(1, 'セッション識別子は必須です').describe('エクスポートセッションの識別子'),
   learned_preferences: z.object({
     user_preferences: z.record(z.any()).optional().describe('ユーザー嗜好'),
     successful_approaches: z.array(z.string()).optional().describe('成功したアプローチ'),
@@ -57,32 +57,33 @@ export const exportExperiencePreferencesTool = {
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {
     const startTime = Date.now();
-    logger.info('Export experience preferences tool execution started', { 
-      exportId: args.export_id
+    logger.info('Export experience preferences tool execution started', {
+      sessionId: args.session_id
     });
 
     try {
       // Validate input
-      const validatedInput = exportExperiencePreferencesSchema.parse(args);
+      const { session_id, learned_preferences } = exportExperiencePreferencesSchema.parse(args);
 
-      // Export preferences
-      const result = await exportManager.exportPreferences({
-        export_id: validatedInput.export_id,
-        data: validatedInput.learned_preferences
-      });
+      const directoryPath = getExperienceDirectoryPath(session_id);
+      const filePath = join(directoryPath, 'preferences.json');
+
+      const writeResult = await writeLearnedPreferences(filePath, learned_preferences);
+      if (!writeResult.success) {
+        throw new Error(`Failed to write preferences file: ${writeResult.error}`);
+      }
 
       const executionTime = Date.now() - startTime;
       logger.info('Export experience preferences tool execution completed', {
-        success: result.success,
-        itemsCount: result.items_count,
+        success: true,
+        itemsCount: 1, // Preferences is a single object
         executionTime
       });
 
       const response: ExportExperiencePreferencesOutput = {
-        success: result.success,
-        file_path: result.file_path,
-        items_count: result.items_count,
-        error: result.error
+        success: true,
+        file_path: filePath,
+        items_count: 1,
       };
 
       return {

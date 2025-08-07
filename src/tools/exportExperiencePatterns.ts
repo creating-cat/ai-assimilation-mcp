@@ -5,13 +5,13 @@
 
 import { z } from 'zod';
 import { logger } from '../utils/logger.js';
-import { exportManager } from '../server/exportManager.js';
+import { getExperienceDirectoryPath } from '../utils/experience.js';
+import { writeReasoningPatterns } from '../utils/fileOperations.js';
+import { join } from 'path';
 
 // Input schema validation
 export const exportExperiencePatternsSchema = z.object({
-  export_id: z.string()
-    .min(1, 'エクスポート処理識別子は必須です')
-    .describe('エクスポート処理識別子'),
+  session_id: z.string().min(1, 'セッション識別子は必須です').describe('エクスポートセッションの識別子'),
   reasoning_patterns: z.array(z.object({
     pattern_type: z.string().describe('パターンの種類'),
     description: z.string().describe('パターンの説明'),
@@ -61,33 +61,34 @@ export const exportExperiencePatternsTool = {
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {
     const startTime = Date.now();
-    logger.info('Export experience patterns tool execution started', { 
-      exportId: args.export_id,
+    logger.info('Export experience patterns tool execution started', {
+      sessionId: args.session_id,
       patternsCount: args.reasoning_patterns?.length
     });
 
     try {
       // Validate input
-      const validatedInput = exportExperiencePatternsSchema.parse(args);
+      const { session_id, reasoning_patterns } = exportExperiencePatternsSchema.parse(args);
 
-      // Export patterns
-      const result = await exportManager.exportPatterns({
-        export_id: validatedInput.export_id,
-        data: validatedInput.reasoning_patterns
-      });
+      const directoryPath = getExperienceDirectoryPath(session_id);
+      const filePath = join(directoryPath, 'patterns.json');
+
+      const writeResult = await writeReasoningPatterns(filePath, reasoning_patterns);
+      if (!writeResult.success) {
+        throw new Error(`Failed to write patterns file: ${writeResult.error}`);
+      }
 
       const executionTime = Date.now() - startTime;
       logger.info('Export experience patterns tool execution completed', {
-        success: result.success,
-        itemsCount: result.items_count,
+        success: true,
+        itemsCount: reasoning_patterns.length,
         executionTime
       });
 
       const response: ExportExperiencePatternsOutput = {
-        success: result.success,
-        file_path: result.file_path,
-        items_count: result.items_count,
-        error: result.error
+        success: true,
+        file_path: filePath,
+        items_count: reasoning_patterns.length,
       };
 
       return {

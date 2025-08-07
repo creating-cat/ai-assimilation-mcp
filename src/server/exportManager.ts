@@ -10,7 +10,8 @@ import {
   ConversationBatch,
   Insight,
   ReasoningPattern,
-  LearnedPreferences
+  LearnedPreferences,
+  ExperienceSummary
 } from '../types/index.js';
 import { 
   ensureDirectory, 
@@ -24,20 +25,13 @@ import {
 } from '../utils/fileOperations.js';
 import { logger } from '../utils/logger.js';
 import { ExportError } from '../utils/errors.js';
+import { loadConfig } from '../config/index.js';
 
 export interface ExportInitParams {
   session_id: string;
   output_directory: string;
-  metadata: Partial<ExperienceMetadata>;
-  summary: {
-    ai_name: string;
-    ai_context: string;
-    experience_nature: string;
-    experience_summary: string;
-    experience_flow: string[];
-    main_topics: string[];
-    estimated_conversations: number;
-  };
+  metadata: Record<string, any>;
+  summary: ExperienceSummary;
 }
 
 export interface ExportInitResult {
@@ -85,7 +79,7 @@ export interface FinalizeExportResult {
   error?: string;
 }
 
-export class ExportManager {
+class ExportManagerInternal {
   private activeSessions: Map<string, ExportSession> = new Map();
   private baseDirectory: string;
 
@@ -129,7 +123,9 @@ export class ExportManager {
         created_at: new Date(),
         status: 'initializing',
         expected_files: expectedFiles,
-        created_files: []
+        created_files: [],
+        summary: params.summary,
+        metadata: params.metadata
       };
 
       // Store session
@@ -335,23 +331,24 @@ export class ExportManager {
       const totalConversations = await this.calculateTotalConversations(session.directory_path, conversationFiles);
 
       const manifest: ExperienceMetadata = {
+        ...session.metadata,
         mcp_version: '1.0.0',
-        ai_name: 'Exported AI Experience',
-        ai_context: 'Experience data exported via AI Assimilation MCP',
-        experience_nature: 'Exported experience data',
-        experience_summary: 'Experience data exported from AI session',
-        experience_flow: ['Data exported via MCP'],
+        ai_name: session.summary.ai_name,
+        ai_context: session.summary.ai_context,
+        experience_nature: session.summary.experience_nature,
+        experience_summary: session.summary.experience_summary,
+        experience_flow: session.summary.experience_flow,
         files: {
           conversations: conversationFiles,
           insights: 'insights.json',
           patterns: 'patterns.json',
           preferences: 'preferences.json'
         },
-        main_topics: ['Exported data'],
+        main_topics: session.summary.main_topics,
         total_conversations: totalConversations,
         session_id: session.session_id,
         created_at: session.created_at.toISOString(),
-        platform: 'ai-assimilation-mcp'
+        platform: session.metadata.platform || 'ai-assimilation-mcp'
       };
 
       // Write manifest
@@ -461,3 +458,6 @@ export class ExportManager {
 
 // Import function needed for calculateTotalConversations
 import { readConversationBatch } from '../utils/fileOperations.js';
+
+const config = loadConfig();
+export const exportManager = new ExportManagerInternal(config.storage.baseDirectory);

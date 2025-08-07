@@ -5,11 +5,7 @@
 
 import { z } from 'zod';
 import { logger } from '../utils/logger.js';
-import { ExportManager } from '../server/exportManager.js';
-import { loadConfig } from '../config/index.js';
-
-const config = loadConfig();
-const exportManager = new ExportManager(config.storage.baseDirectory);
+import { exportManager } from '../server/exportManager.js';
 
 // Input schema validation
 export const exportExperienceFinalizeSchema = z.object({

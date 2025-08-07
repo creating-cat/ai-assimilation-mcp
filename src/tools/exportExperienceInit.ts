@@ -4,21 +4,21 @@
  */
 
 import { z } from 'zod';
+import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
-import { ExportManager } from '../server/exportManager.js';
+import { exportManager } from '../server/exportManager.js';
 import { loadConfig } from '../config/index.js';
 
 const config = loadConfig();
-const exportManager = new ExportManager(config.storage.baseDirectory);
 
 // Input schema validation
 export const exportExperienceInitSchema = z.object({
   session_id: z.string()
-    .min(1, 'セッション識別子は必須です')
-    .describe('セッション識別子'),
+    .optional()
+    .describe('セッション識別子（省略時はUUIDを自動生成）'),
   output_directory: z.string()
-    .min(1, '出力ディレクトリパスは必須です')
-    .describe('出力ディレクトリパス'),
+    .optional()
+    .describe('出力ディレクトリパス（省略時はデフォルト設定を使用）'),
   metadata: z.object({})
     .passthrough()
     .describe('セッションメタデータ'),
@@ -75,10 +75,13 @@ export const exportExperienceInitTool = {
       // Validate input
       const validatedInput = exportExperienceInitSchema.parse(args);
 
+      const sessionId = validatedInput.session_id || uuidv4();
+      const outputDirectory = validatedInput.output_directory || config.storage.baseDirectory;
+
       // Initialize export
       const result = await exportManager.initializeExport({
-        session_id: validatedInput.session_id,
-        output_directory: validatedInput.output_directory,
+        session_id: sessionId,
+        output_directory: outputDirectory,
         metadata: validatedInput.metadata,
         summary: validatedInput.summary
       });

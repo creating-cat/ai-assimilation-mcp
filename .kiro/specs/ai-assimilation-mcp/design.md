@@ -86,7 +86,6 @@ graph TB
 - `output_directory` (string): 出力ディレクトリパス
 - `metadata` (object): セッションメタデータ
 - `summary` (object): 体験データの概要
-- `privacy_level` (enum): プライバシーレベル（public, private, filtered）
 
 **戻り値**:
 - `success` (boolean): 成功フラグ
@@ -281,6 +280,7 @@ experience_session-123/
 #### manifest.json
 
 **必須フィールド**:
+- `mcp_version`: MCPプロトコルのバージョン (例: "0.1.0")
 - `ai_name`: AIの名前（コンテキスト的な意味での名前）
 - `ai_context`: AIの役割・文脈
 - `experience_nature`: 体験の性質・特徴
@@ -299,6 +299,7 @@ experience_session-123/
 
 ```json
 {
+  "mcp_version": "1.0.0",
   // 必須フィールド
   "ai_name": "実用性重視の設計パートナーClaude",
   "ai_context": "協調的Spec作成支援・反復的要件整理エージェント",
@@ -526,6 +527,7 @@ class FileCreateResult:
 
 @dataclass
 class ExperienceDirectoryInfo:
+    mcp_version: str
     directory_path: str
     ai_name: str
     ai_context: str
@@ -545,6 +547,7 @@ class ExperienceDirectoryInfo:
 class DirectoryValidationResult:
     valid: bool
     manifest_valid: bool
+    semantic_valid: bool # 追加
     file_validations: List[Dict[str, Any]]
     missing_files: List[str]
     errors: List[str]

@@ -6,8 +6,6 @@ import { join } from 'path';
 import { loadConfig } from '../config/index.js';
 import { SecurityError } from './errors.js';
 
-const config = loadConfig();
-
 /**
  * Validates a session ID to prevent path traversal attacks.
  * @param sessionId The session ID to validate.
@@ -25,8 +23,8 @@ function validateSessionId(sessionId: string): void {
  * @returns The full, sanitized directory path.
  */
 export function getExperienceDirectoryPath(sessionId: string): string {
+  const config = loadConfig();
   validateSessionId(sessionId);
   const directoryName = `experience_${sessionId}`;
   return join(config.storage.baseDirectory, directoryName);
 }
-

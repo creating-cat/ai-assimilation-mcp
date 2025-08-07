@@ -11,8 +11,6 @@ import { getExperienceDirectoryPath } from '../utils/experience.js';
 import { ensureDirectory, writeJsonFile } from '../utils/fileOperations.js';
 import { join } from 'path';
 
-const config = loadConfig();
-
 // Input schema validation
 export const exportExperienceInitSchema = z.object({
   session_id: z.string()
@@ -68,6 +66,7 @@ export const exportExperienceInitTool = {
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {
     const startTime = Date.now();
+    const config = loadConfig();
     logger.info('Export experience init tool execution started', { args });
 
     try {

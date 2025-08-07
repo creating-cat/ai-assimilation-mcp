@@ -92,11 +92,11 @@ export async function getDirectoryInfo(dirPath: string): Promise<FileOperationRe
       data: {
         path: dirPath,
         exists: true,
-        files: files.filter(async (file) => {
+        files: (await Promise.all(files.map(async (file) => {
           const filePath = join(dirPath, file);
           const stats = await fs.stat(filePath);
-          return stats.isFile();
-        }),
+          return stats.isFile() ? file : null;
+        }))).filter((file): file is string => file !== null),
         size: totalSize
       }
     };

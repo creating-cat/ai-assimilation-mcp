@@ -8,8 +8,6 @@ import { logger } from '../utils/logger.js';
 import { listExperienceDirectories } from '../utils/fileOperations.js';
 import { loadConfig } from '../config/index.js';
 
-const config = loadConfig();
-
 // Input schema validation
 export const listExperiencesSchema = z.object({
   base_directory: z.string()
@@ -93,6 +91,7 @@ export const listExperiencesTool = {
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {
     const startTime = Date.now();
+    const config = loadConfig();
     logger.info('List experiences tool execution started', { args });
 
     try {

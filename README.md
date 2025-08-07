@@ -19,7 +19,7 @@ AI Assimilation MCP（Model Context Protocol）は、複数のAIモデル間で*
 - 🔗 **AI横断の接続性**: 異なるモデル・ベンダー間でもMCPで接続可能
 - 🛠 **ファイル・API対応**: MCP構造はファイル形式で柔軟に扱える
 - ✅ **包括的検証**: 4層検証（構文・スキーマ・セマンティック・クロスファイル）
-- 📋 **9つのMCPツール**: エクスポート・管理・ガイド機能を完備
+- 📋 **10のMCPツール**: エクスポート・管理・ガイド機能を完備
 
 ## 人格分離型同化とは
 
@@ -67,7 +67,7 @@ npm run build
 
 ## 📋 MCPツール
 
-このサーバーは以下の9つのMCPツールを提供します：
+このサーバーは以下の10のMCPツールを提供します：
 
 ### エクスポート機能
 - `export_experience_init` - 体験データエクスポートの初期化とディレクトリ構造作成
@@ -76,6 +76,7 @@ npm run build
 - `export_experience_patterns` - 推論パターンデータの個別ファイル出力
 - `export_experience_preferences` - 学習した嗜好データの個別ファイル出力
 - `export_experience_finalize` - エクスポート完了とマニフェスト生成
+- `get_export_status` - 指定されたセッションのエクスポート状態を動的に確認
 
 ### ファイル管理機能
 - `list_experiences` - 体験データディレクトリの一覧・検索（フィルタ機能付き）
@@ -131,36 +132,69 @@ experience_session-123/
 
 ## 🤝 使用方法
 
-### ソースAI（体験提供側）の流れ
+### ソースAI（体験提供側）の基本的な流れ
 
 ```typescript
-// 1. 同化ガイドの確認
-const guide = await get_assimilation_guide({ guide_type: "for_source_ai" });
+// 1. (任意) 同化ガイドの確認
+const guide = await get_assimilation_guide({ guide_type: 'for_source_ai' });
 
-// 2. 体験データのエクスポート初期化
+// 2. 体験データのエクスポートを初期化
 const initResult = await export_experience_init({
-  session_id: "my-session-123",
-  output_directory: "./exports",
-  metadata: { ai_model: "claude-3" },
+  // session_idは省略可能。省略時はUUIDが自動生成される
+  session_id: 'my-unique-session-123',
+  metadata: { ai_model: 'claude-3-sonnet' },
   summary: {
-    ai_name: "設計パートナーClaude",
-    ai_context: "協調的Spec作成支援",
-    experience_nature: "反復的要件整理プロセス",
-    experience_summary: "協調的な設計プロセス",
-    experience_flow: ["要件整理", "設計", "実装"],
-    main_topics: ["協調的設計", "要件整理"],
+    ai_name: '設計パートナーClaude',
+    ai_context: '協調的Spec作成支援',
+    // ...その他のサマリー情報
     estimated_conversations: 100
   }
 });
+const sessionId = initResult.session_id;
 
-// 3. 各コンポーネントの段階的エクスポート
-await export_experience_conversations({ export_id: initResult.export_id, /* ... */ });
-await export_experience_insights({ export_id: initResult.export_id, /* ... */ });
-await export_experience_patterns({ export_id: initResult.export_id, /* ... */ });
-await export_experience_preferences({ export_id: initResult.export_id, /* ... */ });
+// 3. 各コンポーネントを段階的にエクスポート
+await export_experience_conversations({ session_id: sessionId, batch_number: 1, /* ... */ });
+await export_experience_insights({ session_id: sessionId, /* ... */ });
+await export_experience_patterns({ session_id: sessionId, /* ... */ });
+await export_experience_preferences({ session_id: sessionId, /* ... */ });
 
-// 4. 最終化（manifest.json生成）
-await export_experience_finalize({ export_id: initResult.export_id });
+// 4. 最終化（manifest.jsonを生成）
+await export_experience_finalize({ session_id: sessionId });
+```
+
+### 中断したエクスポートの再開
+
+本サーバーはステートレスアーキテクチャを採用しており、サーバーが再起動してもエクスポート処理を安全に再開できます。
+
+```typescript
+const sessionId = 'my-unique-session-123';
+
+// 1. 現在の状態を確認
+const statusResult = await get_export_status({ session_id: sessionId });
+
+if (statusResult.status === 'not_found') {
+  // 最初から開始
+  // ... export_experience_init を呼び出す ...
+} else if (statusResult.status === 'in_progress' || statusResult.status === 'initializing') {
+  // 途中から再開
+  const nextBatch = statusResult.next_batch_number;
+  console.log(`次に送信すべき会話バッチ: ${nextBatch}`);
+  
+  // 次の会話バッチから送信を再開
+  await export_experience_conversations({ session_id: sessionId, batch_number: nextBatch, /* ... */ });
+  
+  // 他のファイルが作成済みかどうかも確認できる
+  if (!statusResult.created_files.includes('insights.json')) {
+    await export_experience_insights({ session_id: sessionId, /* ... */ });
+  }
+  // ...
+  
+  // 最後に finalize を呼び出す
+  await export_experience_finalize({ session_id: sessionId });
+
+} else if (statusResult.status === 'completed') {
+  console.log('このエクスポートセッションは既に完了しています。');
+}
 ```
 
 ### メインAI（体験受取側）の流れ

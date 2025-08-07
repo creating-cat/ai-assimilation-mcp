@@ -11,8 +11,6 @@ import { ConversationBatch } from '../types/index.js';
 import { join } from 'path';
 import { loadConfig } from '../config/index.js';
 
-const config = loadConfig();
-
 // Input schema validation
 export const exportExperienceConversationsSchema = z.object({
   session_id: z.string().min(1, 'セッション識別子は必須です').describe('エクスポートセッションの識別子'),
@@ -66,6 +64,7 @@ export const exportExperienceConversationsTool = {
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {
     const startTime = Date.now();
+    const config = loadConfig();
     logger.info('Export experience conversations tool execution started', {
       sessionId: args.session_id,
       batchNumber: args.batch_number,

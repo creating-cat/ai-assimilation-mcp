@@ -34,7 +34,6 @@ export interface ListExperiencesOutput {
     directory_path: string;
     ai_name: string;
     ai_context: string;
-    experience_nature: string;
     experience_summary: string;
     experience_flow: string[];
     main_topics: string[];
@@ -104,7 +103,6 @@ export const listExperiencesTool = {
           directory_path: dir.directory_path,
           ai_name: dir.ai_name,
           ai_context: dir.ai_context,
-          experience_nature: dir.experience_nature,
           experience_summary: dir.experience_summary,
           experience_flow: dir.experience_flow,
           main_topics: dir.main_topics,

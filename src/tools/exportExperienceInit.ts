@@ -22,7 +22,6 @@ export const exportExperienceInitSchema = z.object({
   summary: z.object({
     ai_name: z.string().describe('AIの名前'),
     ai_context: z.string().describe('AIのコンテキスト'),
-    experience_nature: z.string().describe('体験の性質'),
     experience_summary: z.string().describe('体験の概要'),
     experience_flow: z.array(z.string()).describe('体験の流れ'),
     main_topics: z.array(z.string()).describe('主要トピック')

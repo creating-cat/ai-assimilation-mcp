@@ -18,7 +18,6 @@ export const experienceMetadataSchema: JSONSchemaType<ExperienceMetadata> = {
     mcp_version: { type: 'string' },
     ai_name: { type: 'string' },
     ai_context: { type: 'string' },
-    experience_nature: { type: 'string' },
     experience_summary: { type: 'string' },
     experience_flow: {
       type: 'array',
@@ -59,7 +58,6 @@ export const experienceMetadataSchema: JSONSchemaType<ExperienceMetadata> = {
     'mcp_version',
     'ai_name', 
     'ai_context',
-    'experience_nature',
     'experience_summary',
     'experience_flow',
     'files',

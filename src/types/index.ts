@@ -7,7 +7,6 @@ export interface ExperienceMetadata {
   mcp_version: string;
   ai_name: string;
   ai_context: string;
-  experience_nature: string;
   experience_summary: string;
   experience_flow: string[];
   files: {
@@ -30,11 +29,9 @@ export interface ExperienceMetadata {
 export interface ExperienceSummary {
   ai_name: string;
   ai_context: string;
-  experience_nature: string;
   experience_summary: string;
   experience_flow: string[];
   main_topics: string[];
-  estimated_conversations: number;
 }
 
 export interface ConversationBatch {
@@ -91,7 +88,6 @@ export interface ExperienceDirectoryInfo {
   directory_path: string;
   ai_name: string;
   ai_context: string;
-  experience_nature: string;
   experience_summary: string;
   experience_flow: string[];
   main_topics: string[];

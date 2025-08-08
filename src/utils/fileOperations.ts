@@ -341,7 +341,6 @@ export async function listExperienceDirectories(
           directory_path: dirPath,
           ai_name: metadata.ai_name,
           ai_context: metadata.ai_context,
-          experience_nature: metadata.experience_nature,
           experience_summary: metadata.experience_summary,
           experience_flow: metadata.experience_flow,
           main_topics: metadata.main_topics,

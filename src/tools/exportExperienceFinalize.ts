@@ -81,7 +81,6 @@ export const exportExperienceFinalizeTool = {
         mcp_version: config.server.version,
         ai_name: summary.ai_name,
         ai_context: summary.ai_context,
-        experience_nature: summary.experience_nature,
         experience_summary: summary.experience_summary,
         experience_flow: summary.experience_flow,
         main_topics: summary.main_topics,

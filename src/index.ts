@@ -9,9 +9,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { exportExperienceInitTool } from './tools/exportExperienceInit.js';
 import { exportExperienceConversationsTool } from './tools/exportExperienceConversations.js';
-import { exportExperienceInsightsTool } from './tools/exportExperienceInsights.js';
-import { exportExperiencePatternsTool } from './tools/exportExperiencePatterns.js';
-import { exportExperiencePreferencesTool } from './tools/exportExperiencePreferences.js';
+import { exportExperienceThoughtsTool } from './tools/exportExperienceThoughts.js';
 import { exportExperienceFinalizeTool } from './tools/exportExperienceFinalize.js';
 import { listExperiencesTool } from './tools/listExperiences.js';
 import { validateExperienceTool } from './tools/validateExperience.js';
@@ -130,81 +128,24 @@ server.tool(
 );
 
 server.tool(
-  exportExperienceInsightsTool.name,
-  exportExperienceInsightsTool.description,
-  exportExperienceInsightsTool.input_schema.shape,
+  exportExperienceThoughtsTool.name,
+  exportExperienceThoughtsTool.description,
+  exportExperienceThoughtsTool.input_schema.shape,
   async (args) => {
     try {
-      const result = await exportExperienceInsightsTool.execute(args);
+      const result = await exportExperienceThoughtsTool.execute(args);
       return {
         content: [{ type: "text", text: result.content[0].text }]
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error('Export insights tool execution error', { error: errorMessage });
+      logger.error('Export thoughts tool execution error', { error: errorMessage });
       return {
         content: [{ 
           type: "text", 
           text: JSON.stringify({
             success: false,
             file_path: '',
-            items_count: 0,
-            error: errorMessage
-          }, null, 2)
-        }]
-      };
-    }
-  }
-);
-
-server.tool(
-  exportExperiencePatternsTool.name,
-  exportExperiencePatternsTool.description,
-  exportExperiencePatternsTool.input_schema.shape,
-  async (args) => {
-    try {
-      const result = await exportExperiencePatternsTool.execute(args);
-      return {
-        content: [{ type: "text", text: result.content[0].text }]
-      };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error('Export patterns tool execution error', { error: errorMessage });
-      return {
-        content: [{ 
-          type: "text", 
-          text: JSON.stringify({
-            success: false,
-            file_path: '',
-            items_count: 0,
-            error: errorMessage
-          }, null, 2)
-        }]
-      };
-    }
-  }
-);
-
-server.tool(
-  exportExperiencePreferencesTool.name,
-  exportExperiencePreferencesTool.description,
-  exportExperiencePreferencesTool.input_schema.shape,
-  async (args) => {
-    try {
-      const result = await exportExperiencePreferencesTool.execute(args);
-      return {
-        content: [{ type: "text", text: result.content[0].text }]
-      };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error('Export preferences tool execution error', { error: errorMessage });
-      return {
-        content: [{ 
-          type: "text", 
-          text: JSON.stringify({
-            success: false,
-            file_path: '',
-            items_count: 0,
             error: errorMessage
           }, null, 2)
         }]

@@ -29,12 +29,7 @@ export {
   writeExperienceMetadata,
   readConversationBatch,
   writeConversationBatch,
-  readInsights,
-  writeInsights,
-  readReasoningPatterns,
-  writeReasoningPatterns,
-  readLearnedPreferences,
-  writeLearnedPreferences,
+  // Legacy individual file functions removed - use writeJsonFile directly
   listExperienceDirectories,
   validateExperienceDirectoryFiles,
   getFileSize,
@@ -51,9 +46,7 @@ export {
   validateData,
   validateExperienceMetadata,
   validateConversationBatch,
-  validateInsights,
-  validateReasoningPatterns,
-  validateLearnedPreferences,
+  validateThoughts,
   validateFileContent,
   validateExperienceDirectory
 } from './validation.js';

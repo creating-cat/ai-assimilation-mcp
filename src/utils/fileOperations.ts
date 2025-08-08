@@ -7,10 +7,7 @@ import { promises as fs } from 'fs';
 import { join, dirname, basename, extname } from 'path';
 import { 
   ExperienceMetadata, 
-  ConversationBatch, 
-  Insight, 
-  ReasoningPattern, 
-  LearnedPreferences,
+  ConversationBatch,
   ExperienceDirectoryInfo,
   DirectoryValidationResult
 } from '../types/index.js';
@@ -251,62 +248,8 @@ export async function writeConversationBatch(
   return writeJsonFile(filePath, batch);
 }
 
-/**
- * Read insights file
- */
-export async function readInsights(
-  filePath: string
-): Promise<FileOperationResult<{ insights: Insight[] }>> {
-  return readJsonFile<{ insights: Insight[] }>(filePath);
-}
-
-/**
- * Write insights file
- */
-export async function writeInsights(
-  filePath: string,
-  insights: Insight[]
-): Promise<FileOperationResult<{ size: number }>> {
-  return writeJsonFile(filePath, { insights });
-}
-
-/**
- * Read reasoning patterns file
- */
-export async function readReasoningPatterns(
-  filePath: string
-): Promise<FileOperationResult<{ reasoning_patterns: ReasoningPattern[] }>> {
-  return readJsonFile<{ reasoning_patterns: ReasoningPattern[] }>(filePath);
-}
-
-/**
- * Write reasoning patterns file
- */
-export async function writeReasoningPatterns(
-  filePath: string,
-  patterns: ReasoningPattern[]
-): Promise<FileOperationResult<{ size: number }>> {
-  return writeJsonFile(filePath, { reasoning_patterns: patterns });
-}
-
-/**
- * Read learned preferences file
- */
-export async function readLearnedPreferences(
-  filePath: string
-): Promise<FileOperationResult<{ learned_preferences: LearnedPreferences }>> {
-  return readJsonFile<{ learned_preferences: LearnedPreferences }>(filePath);
-}
-
-/**
- * Write learned preferences file
- */
-export async function writeLearnedPreferences(
-  filePath: string,
-  preferences: LearnedPreferences
-): Promise<FileOperationResult<{ size: number }>> {
-  return writeJsonFile(filePath, { learned_preferences: preferences });
-}
+// Legacy individual file functions removed
+// Use writeJsonFile directly for thoughts.json (no schema validation)
 
 /**
  * List experience directories in a base directory
@@ -396,9 +339,7 @@ export async function validateExperienceDirectoryFiles(
     // Read all expected files
     const expectedFiles = [
       ...manifest.files.conversations,
-      manifest.files.insights,
-      manifest.files.patterns,
-      manifest.files.preferences
+      manifest.files.thoughts
     ];
 
     for (const filename of expectedFiles) {

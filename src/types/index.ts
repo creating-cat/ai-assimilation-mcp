@@ -11,9 +11,7 @@ export interface ExperienceMetadata {
   experience_flow: string[];
   files: {
     conversations: string[];
-    insights: string;
-    patterns: string;
-    preferences: string;
+    thoughts: string;
   };
   main_topics: string[];
   total_conversations: number;
@@ -50,34 +48,8 @@ export interface Conversation {
   reasoning?: string;
 }
 
-export interface Insight {
-  topic: string;
-  insight: string;
-  timestamp: string;
-  evidence?: string[];
-  confidence?: number;
-  analysis_method?: string;
-  related_conversations?: number[];
-  statistical_significance?: number;
-}
-
-export interface ReasoningPattern {
-  pattern_type: string;
-  description: string;
-  examples?: string[];
-  effectiveness?: number;
-  usage_frequency?: number;
-  success_contexts?: string[];
-  learned_from?: string[];
-}
-
-export interface LearnedPreferences {
-  user_preferences?: Record<string, any>;
-  successful_approaches?: string[];
-  learning_algorithm?: string;
-  adaptation_rate?: number;
-  preference_confidence?: Record<string, number>;
-}
+// Thoughts are stored as free-form JSON objects
+// No strict schema to allow maximum flexibility for AI expression
 
 export interface ExperienceDirectoryInfo {
   mcp_version: string;

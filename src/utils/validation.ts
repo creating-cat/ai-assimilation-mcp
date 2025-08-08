@@ -8,17 +8,11 @@ import {
   schemas, 
   SchemaType,
   experienceMetadataSchema,
-  conversationBatchSchema,
-  insightsSchema,
-  reasoningPatternsSchema,
-  learnedPreferencesSchema
+  conversationBatchSchema
 } from '../types/schemas.js';
 import { 
   ExperienceMetadata, 
-  ConversationBatch, 
-  Insight, 
-  ReasoningPattern, 
-  LearnedPreferences,
+  ConversationBatch,
   ValidationErrorDetail,
   DirectoryValidationResult,
 } from '../types/index.js';
@@ -34,10 +28,8 @@ addFormats(ajv);
 // Compile validators
 const validators = {
   manifest: ajv.compile(experienceMetadataSchema),
-  conversations: ajv.compile(conversationBatchSchema),
-  insights: ajv.compile(insightsSchema),
-  patterns: ajv.compile(reasoningPatternsSchema),
-  preferences: ajv.compile(learnedPreferencesSchema as any) // Type assertion for complex schema
+  conversations: ajv.compile(conversationBatchSchema)
+  // thoughts.json uses no schema validation for maximum flexibility
 } as const;
 
 export interface ValidationResult {
@@ -107,69 +99,23 @@ export function validateConversationBatch(data: unknown): ValidationResult {
 }
 
 /**
- * Validate insights data
+ * Validate thoughts data - No strict validation for maximum AI flexibility
  */
-export function validateInsights(data: unknown): ValidationResult {
-  const result = validateData(data, 'insights');
-  
-  // Additional semantic validation
-  if (result.valid && data && typeof data === 'object') {
-    const insights = (data as { insights: Insight[] }).insights;
-    
-    // Check for duplicate topics
-    const topics = new Set<string>();
-    for (const insight of insights) {
-      if (topics.has(insight.topic)) {
-        result.warnings.push(`Duplicate insight topic: ${insight.topic}`);
-      }
-      topics.add(insight.topic);
-    }
-    
-    // Validate timestamp format
-    for (const insight of insights) {
-      const date = new Date(insight.timestamp);
-      if (isNaN(date.getTime())) {
-        result.errors.push({
-          field: 'insights.timestamp',
-          message: `Invalid timestamp format: ${insight.timestamp}`,
-          value: insight.timestamp
-        });
-        result.valid = false;
-      }
-    }
+export function validateThoughts(data: unknown): ValidationResult {
+  // Basic JSON validity check only
+  if (data === null || data === undefined) {
+    return {
+      valid: false,
+      errors: [{ field: 'thoughts', message: 'Thoughts data cannot be null or undefined', value: data }],
+      warnings: []
+    };
   }
   
-  return result;
-}
-
-/**
- * Validate reasoning patterns data
- */
-export function validateReasoningPatterns(data: unknown): ValidationResult {
-  const result = validateData(data, 'patterns');
-  
-  // Additional semantic validation
-  if (result.valid && data && typeof data === 'object') {
-    const patterns = (data as { reasoning_patterns: ReasoningPattern[] }).reasoning_patterns;
-    
-    // Check for duplicate pattern types
-    const types = new Set<string>();
-    for (const pattern of patterns) {
-      if (types.has(pattern.pattern_type)) {
-        result.warnings.push(`Duplicate pattern type: ${pattern.pattern_type}`);
-      }
-      types.add(pattern.pattern_type);
-    }
-  }
-  
-  return result;
-}
-
-/**
- * Validate learned preferences data
- */
-export function validateLearnedPreferences(data: unknown): ValidationResult {
-  return validateData(data, 'preferences');
+  return {
+    valid: true,
+    errors: [],
+    warnings: []
+  };
 }
 
 /**
@@ -180,12 +126,8 @@ export function validateFileContent(filename: string, content: unknown): Validat
     return validateExperienceMetadata(content);
   } else if (filename.startsWith('conversations_') && filename.endsWith('.json')) {
     return validateConversationBatch(content);
-  } else if (filename === 'insights.json') {
-    return validateInsights(content);
-  } else if (filename === 'patterns.json') {
-    return validateReasoningPatterns(content);
-  } else if (filename === 'preferences.json') {
-    return validateLearnedPreferences(content);
+  } else if (filename === 'thoughts.json') {
+    return validateThoughts(content);
   } else {
     return {
       valid: false,
@@ -229,9 +171,7 @@ export function validateExperienceDirectory(
   // Check for required files
   const expectedFiles = [
     ...manifest.files.conversations,
-    manifest.files.insights,
-    manifest.files.patterns,
-    manifest.files.preferences
+    manifest.files.thoughts
   ];
   
   for (const expectedFile of expectedFiles) {

@@ -5,10 +5,7 @@
 import { JSONSchemaType } from 'ajv';
 import { 
   ExperienceMetadata, 
-  ConversationBatch, 
-  Insight, 
-  ReasoningPattern, 
-  LearnedPreferences 
+  ConversationBatch
 } from './index.js';
 
 // Experience Metadata Schema (manifest.json)
@@ -30,11 +27,9 @@ export const experienceMetadataSchema: JSONSchemaType<ExperienceMetadata> = {
           type: 'array',
           items: { type: 'string' }
         },
-        insights: { type: 'string' },
-        patterns: { type: 'string' },
-        preferences: { type: 'string' }
+        thoughts: { type: 'string' }
       },
-      required: ['conversations', 'insights', 'patterns', 'preferences'],
+      required: ['conversations', 'thoughts'],
       additionalProperties: false
     },
     main_topics: {
@@ -100,120 +95,14 @@ export const conversationBatchSchema: JSONSchemaType<ConversationBatch> = {
   additionalProperties: false
 };
 
-// Insights Schema (insights.json)
-export const insightsSchema: JSONSchemaType<{ insights: Insight[] }> = {
-  type: 'object',
-  properties: {
-    insights: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          topic: { type: 'string' },
-          insight: { type: 'string' },
-          timestamp: { type: 'string' },
-          evidence: {
-            type: 'array',
-            items: { type: 'string' },
-            nullable: true
-          },
-          confidence: { type: 'number', minimum: 0, maximum: 1, nullable: true },
-          analysis_method: { type: 'string', nullable: true },
-          related_conversations: {
-            type: 'array',
-            items: { type: 'integer' },
-            nullable: true
-          },
-          statistical_significance: { type: 'number', minimum: 0, maximum: 1, nullable: true }
-        },
-        required: ['topic', 'insight', 'timestamp'],
-        additionalProperties: true
-      }
-    }
-  },
-  required: ['insights'],
-  additionalProperties: false
-};
-
-// Reasoning Patterns Schema (patterns.json)
-export const reasoningPatternsSchema: JSONSchemaType<{ reasoning_patterns: ReasoningPattern[] }> = {
-  type: 'object',
-  properties: {
-    reasoning_patterns: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          pattern_type: { type: 'string' },
-          description: { type: 'string' },
-          examples: {
-            type: 'array',
-            items: { type: 'string' },
-            nullable: true
-          },
-          effectiveness: { type: 'number', minimum: 0, maximum: 1, nullable: true },
-          usage_frequency: { type: 'number', minimum: 0, maximum: 1, nullable: true },
-          success_contexts: {
-            type: 'array',
-            items: { type: 'string' },
-            nullable: true
-          },
-          learned_from: {
-            type: 'array',
-            items: { type: 'string' },
-            nullable: true
-          }
-        },
-        required: ['pattern_type', 'description'],
-        additionalProperties: true
-      }
-    }
-  },
-  required: ['reasoning_patterns'],
-  additionalProperties: false
-};
-
-// Learned Preferences Schema (preferences.json)
-export const learnedPreferencesSchema = {
-  type: 'object',
-  properties: {
-    learned_preferences: {
-      type: 'object',
-      properties: {
-        user_preferences: { 
-          type: 'object', 
-          nullable: true,
-          additionalProperties: true
-        },
-        successful_approaches: {
-          type: 'array',
-          items: { type: 'string' },
-          nullable: true
-        },
-        learning_algorithm: { type: 'string', nullable: true },
-        adaptation_rate: { type: 'number', minimum: 0, maximum: 1, nullable: true },
-        preference_confidence: {
-          type: 'object',
-          nullable: true,
-          additionalProperties: { type: 'number' },
-          required: []
-        }
-      },
-      required: [],
-      additionalProperties: true
-    }
-  },
-  required: ['learned_preferences'],
-  additionalProperties: false
-} as const;
+// Thoughts Schema (thoughts.json) - Free-form JSON for maximum AI flexibility
+// No strict schema validation to allow creative expression
 
 // Schema registry for easy access
 export const schemas: Record<string, any> = {
   manifest: experienceMetadataSchema,
-  conversations: conversationBatchSchema,
-  insights: insightsSchema,
-  patterns: reasoningPatternsSchema,
-  preferences: learnedPreferencesSchema
+  conversations: conversationBatchSchema
+  // thoughts.json uses no schema validation for maximum flexibility
 };
 
-export type SchemaType = 'manifest' | 'conversations' | 'insights' | 'patterns' | 'preferences';
+export type SchemaType = 'manifest' | 'conversations';

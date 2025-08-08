@@ -37,7 +37,7 @@ export interface ExportExperienceFinalizeOutput {
 
 export const exportExperienceFinalizeTool = {
   name: 'export_experience_finalize',
-  description: `エクスポート処理を完了し、manifest.jsonを生成します。全ての必要なファイル（conversations, insights, patterns, preferences）が作成された後に実行してください。`,
+  description: `エクスポート処理を完了し、manifest.jsonを生成します。全ての必要なファイル（conversations, thoughts）が作成された後に実行してください。`,
   input_schema: exportExperienceFinalizeSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {
@@ -86,9 +86,8 @@ export const exportExperienceFinalizeTool = {
         main_topics: summary.main_topics,
         files: {
           conversations: conversationFiles,
-          insights: allFiles.includes('insights.json') ? 'insights.json' : '',
-          patterns: allFiles.includes('patterns.json') ? 'patterns.json' : '',
-          preferences: allFiles.includes('preferences.json') ? 'preferences.json' : '',
+          thoughts: allFiles.includes('thoughts.json') ? 'thoughts.json' : '',
+
         },
         total_conversations: totalConversations,
         session_id: session_id,

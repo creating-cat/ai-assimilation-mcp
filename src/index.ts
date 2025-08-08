@@ -13,7 +13,8 @@ import { exportExperienceThoughtsTool } from './tools/exportExperienceThoughts.j
 import { exportExperienceFinalizeTool } from './tools/exportExperienceFinalize.js';
 import { listExperiencesTool } from './tools/listExperiences.js';
 import { validateExperienceTool } from './tools/validateExperience.js';
-import { getAssimilationGuideTool } from './tools/getAssimilationGuide.js';
+import { getExportGuideTool } from './tools/getExportGuide.js';
+import { getImportGuideTool } from './tools/getImportGuide.js';
 import { getExportStatusTool } from './tools/getExportStatus.js';
 import { logger } from './utils/logger.js';
 import { loadConfig } from './config/index.js';
@@ -245,18 +246,48 @@ server.tool(
 );
 
 server.tool(
-  getAssimilationGuideTool.name,
-  getAssimilationGuideTool.description,
-  getAssimilationGuideTool.input_schema.shape,
+  getExportGuideTool.name,
+  getExportGuideTool.description,
+  getExportGuideTool.input_schema.shape,
   async (args) => {
     try {
-      const result = await getAssimilationGuideTool.execute(args);
+      const result = await getExportGuideTool.execute(args);
       return {
         content: [{ type: "text", text: result.content[0].text }]
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error('Get assimilation guide tool execution error', { error: errorMessage });
+      logger.error('Get export guide tool execution error', { error: errorMessage });
+      return {
+        content: [{ 
+          type: "text", 
+          text: JSON.stringify({
+            success: false,
+            guide_content: '',
+            examples: [],
+            best_practices: [],
+            related_concepts: [],
+            error: errorMessage
+          }, null, 2)
+        }]
+      };
+    }
+  }
+);
+
+server.tool(
+  getImportGuideTool.name,
+  getImportGuideTool.description,
+  getImportGuideTool.input_schema.shape,
+  async (args) => {
+    try {
+      const result = await getImportGuideTool.execute(args);
+      return {
+        content: [{ type: "text", text: result.content[0].text }]
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error('Get import guide tool execution error', { error: errorMessage });
       return {
         content: [{ 
           type: "text", 

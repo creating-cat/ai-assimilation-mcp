@@ -32,7 +32,7 @@ export interface ExportExperiencePreferencesOutput {
 
 export const exportExperiencePreferencesTool = {
   name: 'export_experience_preferences',
-  description: `AIが対話を通じて学習した「ユーザーの好み」や「成功したアプローチ」を、preferences.jsonファイルに書き出します。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
+  description: `学習した嗜好をエクスポートします。会話データのエクスポート後に実行してください。ユーザーの好みや成功したアプローチを記録します。`,
   input_schema: exportExperiencePreferencesSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

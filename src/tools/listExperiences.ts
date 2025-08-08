@@ -55,7 +55,7 @@ export interface ListExperiencesOutput {
 
 export const listExperiencesTool = {
   name: 'list_experiences',
-  description: `保存されている他のAIの経験（体験データ）を検索し、一覧を取得します。学習したい経験を見つけるために使用します。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
+  description: `保存されている体験データを検索・一覧表示します。学習したい経験を見つけるために使用します。フィルタ機能で条件を絞り込めます。`,
   input_schema: listExperiencesSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

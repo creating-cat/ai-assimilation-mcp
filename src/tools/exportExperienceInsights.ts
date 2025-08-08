@@ -35,7 +35,7 @@ export interface ExportExperienceInsightsOutput {
 
 export const exportExperienceInsightsTool = {
   name: 'export_experience_insights',
-  description: `一連のやり取りからAIが学習した「洞察」や「重要な気づき」を、insights.jsonファイルに書き出します。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
+  description: `学習した洞察をエクスポートします。会話データのエクスポート後に実行してください。一般化可能な発見や気づきを記録します。`,
   input_schema: exportExperienceInsightsSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

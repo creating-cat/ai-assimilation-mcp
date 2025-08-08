@@ -42,7 +42,7 @@ export interface ExportExperienceInitOutput {
 
 export const exportExperienceInitTool = {
   name: 'export_experience_init',
-  description: `AIの経験をファイルとして保存（エクスポート）するセッションを開始し、準備を整えます。このプロセスの最初のステップです。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
+  description: `体験エクスポートの初期化を行います。実行前に必ず get_assimilation_guide でワークフロー全体を確認し、ユーザーから必要な情報（AI名、体験の性質、概要など）を収集してください。`,
   input_schema: exportExperienceInitSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

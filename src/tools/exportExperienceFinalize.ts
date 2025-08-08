@@ -37,7 +37,7 @@ export interface ExportExperienceFinalizeOutput {
 
 export const exportExperienceFinalizeTool = {
   name: 'export_experience_finalize',
-  description: `一連の経験ファイルのエクスポートを完了させ、全体のまとめファイルである manifest.json を生成します。このプロセスの最後のステップです。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
+  description: `エクスポート処理を完了し、manifest.jsonを生成します。全ての必要なファイル（conversations, insights, patterns, preferences）が作成された後に実行してください。`,
   input_schema: exportExperienceFinalizeSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

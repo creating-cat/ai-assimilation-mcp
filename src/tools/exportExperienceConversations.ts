@@ -41,7 +41,7 @@ export interface ExportExperienceConversationsOutput {
 
 export const exportExperienceConversationsTool = {
   name: 'export_experience_conversations',
-  description: `指定されたセッションの会話履歴（チャットログ）を、まとまった単位（バッチ）でJSONファイルに書き出します。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
+  description: `会話履歴をバッチ単位でエクスポートします。export_experience_init完了後に実行してください。バッチ番号は1から順番に処理する必要があります。`,
   input_schema: exportExperienceConversationsSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

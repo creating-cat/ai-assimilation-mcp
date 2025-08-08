@@ -34,7 +34,7 @@ export interface ExportExperiencePatternsOutput {
 
 export const exportExperiencePatternsTool = {
   name: 'export_experience_patterns',
-  description: `AIが学習した「推論パターン」や「思考のクセ」を、patterns.jsonファイルに書き出します。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
+  description: `推論パターンをエクスポートします。会話データのエクスポート後に実行してください。再現可能な思考パターンや効果的なアプローチを記録します。`,
   input_schema: exportExperiencePatternsSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

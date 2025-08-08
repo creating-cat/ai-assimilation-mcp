@@ -21,7 +21,7 @@ export type GetExportStatusInput = z.infer<typeof getExportStatusSchema>;
 
 export const getExportStatusTool = {
   name: 'get_export_status',
-  description: `指定されたセッションIDのエクスポート（ファイル保存）がどこまで進んでいるか、現在の状態を確認します。中断した処理を再開する際に便利です。詳細な使い方は get_assimilation_guide ツールを参照してください。`,
+  description: `エクスポート処理の進捗状況を確認します。処理が中断された場合や、次に実行すべきステップを確認したい場合に使用してください。`,
   input_schema: getExportStatusSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

@@ -100,17 +100,7 @@ export function validateConversationBatch(data: unknown): ValidationResult {
       );
     }
     
-    // Check timestamp ordering
-    for (let i = 1; i < batch.conversations.length; i++) {
-      const prev = new Date(batch.conversations[i - 1].timestamp);
-      const curr = new Date(batch.conversations[i].timestamp);
-      
-      if (curr < prev) {
-        result.warnings.push(
-          `Conversations not in chronological order at index ${i}`
-        );
-      }
-    }
+    // Note: Conversation order is maintained by array index
   }
   
   return result;

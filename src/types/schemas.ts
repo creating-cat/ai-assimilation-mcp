@@ -87,23 +87,11 @@ export const conversationBatchSchema: JSONSchemaType<ConversationBatch> = {
       items: {
         type: 'object',
         properties: {
-          timestamp: { type: 'string' },
           user_input: { type: 'string' },
           ai_response: { type: 'string' },
-          reasoning: { type: 'string', nullable: true },
-          confidence: { type: 'number', minimum: 0, maximum: 1, nullable: true },
-          context: { 
-            type: 'object', 
-            nullable: true,
-            additionalProperties: true
-          },
-          internal_state: { 
-            type: 'object', 
-            nullable: true,
-            additionalProperties: true
-          }
+          reasoning: { type: 'string', nullable: true }
         },
-        required: ['timestamp', 'user_input', 'ai_response'],
+        required: ['user_input', 'ai_response'],
         additionalProperties: true
       }
     }

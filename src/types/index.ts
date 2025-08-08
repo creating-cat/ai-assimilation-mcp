@@ -45,13 +45,9 @@ export interface ConversationBatch {
 }
 
 export interface Conversation {
-  timestamp: string;
   user_input: string;
   ai_response: string;
   reasoning?: string;
-  confidence?: number;
-  context?: Record<string, any>;
-  internal_state?: Record<string, any>;
 }
 
 export interface Insight {

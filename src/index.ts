@@ -264,9 +264,6 @@ server.tool(
           text: JSON.stringify({
             success: false,
             guide_content: '',
-            examples: [],
-            best_practices: [],
-            related_concepts: [],
             error: errorMessage
           }, null, 2)
         }]
@@ -294,9 +291,6 @@ server.tool(
           text: JSON.stringify({
             success: false,
             guide_content: '',
-            examples: [],
-            best_practices: [],
-            related_concepts: [],
             error: errorMessage
           }, null, 2)
         }]

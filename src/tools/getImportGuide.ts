@@ -4,14 +4,10 @@
  */
 
 import { z } from 'zod';
-import { promises as fs } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+// File system imports removed - guide content is now embedded as string
 import { logger } from '../utils/logger.js';
 
-// ESM環境で__dirnameを再現
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// __dirname no longer needed - guide content is embedded
 
 // Input schema validation (no parameters needed)
 export const getImportGuideSchema = z.object({});
@@ -70,7 +66,62 @@ export const getImportGuideTool = {
    * メインAI向けガイドを生成
    */
   async getMainAIGuide(): Promise<GetImportGuideOutput> {
-    const guideContent = await fs.readFile(join(__dirname, '../guides/main_ai_guide.md'), 'utf-8');
+    const guideContent = `# メインAI向け同化ガイドライン
+
+## 基本的な心構え
+
+**人格分離型同化**の原則に従い、自分の人格・価値観・判断基準を保持したまま、
+ソースAIの体験を「参考情報」として受け取り、自分なりに解釈・統合してください。
+
+## 推奨する読み込み順序
+
+1. **manifest.json** - 全体像の把握
+   - ai_name, ai_context で提供者の特徴を理解
+   - experience_nature, experience_summary で体験の性質を把握
+   - main_topics で重要なテーマを確認
+
+2. **insights.json** - 価値の高い洞察から確認
+   - topic と insight の組み合わせを重視
+   - evidence で根拠を確認
+   - confidence で信頼度を判断
+
+3. **patterns.json** - 推論パターンの学習
+   - pattern_type と description を理解
+   - examples で具体的な適用方法を学習
+   - effectiveness で有効性を評価
+
+4. **preferences.json** - 学習した嗜好の参考
+   - user_preferences で相手の好みを理解
+   - successful_approaches で効果的な手法を学習
+
+5. **conversations_*.json** - 必要に応じて具体例を確認
+   - reasoning フィールドで判断理由を理解
+   - context で状況背景を把握
+
+## 統合テクニック
+
+### 1. 選択的吸収
+- 全てを盲目的にコピーするのではなく、有用な部分のみを選択
+- 自分の経験と照らし合わせて妥当性を判断
+- 矛盾する情報は「別の視点」として記録
+
+### 2. 主観的統合
+- ソースAIの体験を自分の視点で再解釈
+- 自分の価値観に合わせて適用方法を調整
+- 既存知識との統合を慎重に実施
+
+### 3. 段階的適用
+- 一度に全てを取り入れようとせず、段階的に適用
+- 小さな変更から始めて効果を確認
+- 必要に応じて調整や修正を実施
+
+## 注意事項
+
+- **人格の保持**: 自分らしさを失わないよう注意
+- **批判的思考**: 情報を鵜呑みにせず、批判的に検討
+- **文脈の理解**: ソースAIの状況と自分の状況の違いを考慮
+- **継続的評価**: 取り入れた要素の効果を継続的に評価`;
+
     return {
       success: true,
       guide_content: guideContent

@@ -25,8 +25,7 @@ export const exportExperienceInitSchema = z.object({
     experience_nature: z.string().describe('体験の性質'),
     experience_summary: z.string().describe('体験の概要'),
     experience_flow: z.array(z.string()).describe('体験の流れ'),
-    main_topics: z.array(z.string()).describe('主要トピック'),
-    estimated_conversations: z.number().int().min(0).describe('推定会話数')
+    main_topics: z.array(z.string()).describe('主要トピック')
   }).describe('体験データの概要')
 });
 
@@ -77,11 +76,10 @@ export const exportExperienceInitTool = {
         throw new Error(`Failed to write initial summary file: ${writeResult.error}`);
       }
 
-      // Calculate expected files
-      const estimatedBatches = Math.ceil(validatedInput.summary.estimated_conversations / config.storage.conversationBatchSize);
+      // Calculate expected files (conversation_batches will be determined during export)
       const expected_files: Record<string, number> = {
         manifest: 1,
-        conversation_batches: estimatedBatches,
+        conversation_batches: 0, // Will be updated as conversations are exported
         insights: 1,
         patterns: 1,
         preferences: 1

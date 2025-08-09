@@ -84,9 +84,9 @@ export const conversationBatchSchema: JSONSchemaType<ConversationBatch> = {
         properties: {
           user_input: { type: 'string' },
           ai_response: { type: 'string' },
-          reasoning: { type: 'string', nullable: true }
+          reasoning: { type: 'string' }
         },
-        required: ['user_input', 'ai_response'],
+        required: ['user_input', 'ai_response', 'reasoning'],
         additionalProperties: true
       }
     }

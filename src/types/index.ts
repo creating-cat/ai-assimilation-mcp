@@ -45,7 +45,7 @@ export interface ConversationBatch {
 export interface Conversation {
   user_input: string;
   ai_response: string;
-  reasoning?: string;
+  reasoning: string;
 }
 
 // Thoughts are stored as free-form JSON objects

@@ -15,9 +15,9 @@ import { loadConfig } from '../config/index.js';
 export const exportExperienceConversationsSchema = z.object({
   session_id: z.string().min(1, 'セッション識別子は必須です').describe('エクスポートセッションの識別子'),
   conversations_batch: z.array(z.object({
-    user_input: z.string().describe('ユーザー入力'),
-    ai_response: z.string().describe('AI応答'),
-    reasoning: z.string().optional().describe('判断理由・思考過程')
+    user_input: z.string().min(1, 'ユーザー入力は必須です').describe('ユーザー入力'),
+    ai_response: z.string().min(1, 'AI応答は必須です').describe('AI応答'),
+    reasoning: z.string().min(1, '思考過程は必須です').describe('思考過程')
   })).describe('会話データのバッチ（50件ベース）'),
   batch_number: z.number()
     .int()

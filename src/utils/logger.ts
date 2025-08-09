@@ -32,8 +32,8 @@ export class Logger {
   private log(level: LogLevel, message: string, data?: any): void {
     if (!this.shouldLog(level)) return;
 
-    // In production MCP servers, only log errors to avoid interfering with protocol communication
-    // In development, allow all logs if DEBUG_MCP is set
+    // MCP servers should only log to stderr to avoid interfering with protocol communication
+    // In production: only errors. In development: all logs if DEBUG_MCP=true
     const isDebugMode = process.env.DEBUG_MCP === 'true';
     
     if (level === LogLevel.ERROR || isDebugMode) {
@@ -43,6 +43,7 @@ export class Logger {
         message,
         ...(data && { data })
       };
+      // Always use stderr for MCP compatibility
       console.error(JSON.stringify(entry));
     }
   }

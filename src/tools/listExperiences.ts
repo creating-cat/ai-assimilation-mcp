@@ -4,6 +4,7 @@
  */
 
 import { z } from 'zod';
+import { promises as fs } from 'fs';
 import { logger } from '../utils/logger.js';
 import { listExperienceDirectories } from '../utils/fileOperations.js';
 import { loadConfig } from '../config/index.js';
@@ -16,7 +17,6 @@ export const listExperiencesSchema = z.object({
   filter: z.object({
     ai_name: z.string().optional().describe('AI名でフィルタ'),
     ai_context: z.string().optional().describe('AIコンテキストでフィルタ'),
-    experience_nature: z.string().optional().describe('体験の性質でフィルタ'),
     main_topics: z.array(z.string()).optional().describe('主要トピックでフィルタ'),
     created_after: z.string().optional().describe('指定日時以降に作成されたもの'),
     created_before: z.string().optional().describe('指定日時以前に作成されたもの'),
@@ -83,11 +83,28 @@ export const listExperiencesTool = {
         experienceDirectories = this.applyFilters(experienceDirectories, validatedInput.filter);
       }
 
-      // Generate directory summaries
-      const directorySummaries = experienceDirectories.map(dir => ({
-        directory: dir.directory_path,
-        summary: `${dir.ai_name}: ${dir.experience_summary}`,
-        file_count: 5 // manifest + conversations + insights + patterns + preferences
+      // Generate directory summaries with dynamic file count
+      const directorySummaries = await Promise.all(experienceDirectories.map(async dir => {
+        try {
+          const files = await fs.readdir(dir.directory_path);
+          const actualFileCount = files.filter(file => 
+            file.endsWith('.json') && 
+            (file === 'manifest.json' || file.startsWith('conversations_') || file === 'thoughts.json')
+          ).length;
+          
+          return {
+            directory: dir.directory_path,
+            summary: `${dir.ai_name}: ${dir.experience_summary}`,
+            file_count: actualFileCount
+          };
+        } catch (error) {
+          // Fallback to estimated count if directory read fails
+          return {
+            directory: dir.directory_path,
+            summary: `${dir.ai_name}: ${dir.experience_summary}`,
+            file_count: 3 // fallback estimate
+          };
+        }
       }));
 
       const executionTime = Date.now() - startTime;
@@ -156,10 +173,7 @@ export const listExperiencesTool = {
         return false;
       }
 
-      // Experience nature filter
-      if (filter.experience_nature && !dir.experience_nature.toLowerCase().includes(filter.experience_nature.toLowerCase())) {
-        return false;
-      }
+
 
       // Main topics filter
       if (filter.main_topics && filter.main_topics.length > 0) {

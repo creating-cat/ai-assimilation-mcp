@@ -182,7 +182,7 @@ export const yourTool = {
 npm test
 
 # 特定のテストのみ実行
-npm test -- --testNamePattern="ExportManager"
+npm test -- --testNamePattern="exportFlow"
 ```
 
 ### 2. デバッグモードで実行
@@ -199,7 +199,7 @@ DEBUG_MCP=true npm run dev
 ### 4. 既存のコードを参考にする
 - `src/tools/` の実装例
 - `src/__tests__/` のテストケース
-- `src/server/exportManager.ts` の処理フロー
+- `src/index.ts` のメインサーバー実装
 
 ## コミュニティ
 

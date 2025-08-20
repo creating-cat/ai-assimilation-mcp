@@ -16,7 +16,7 @@ AI Assimilation MCP（Model Context Protocol）は、複数のAIモデル間で*
 - 🔗 **AI横断の接続性**: 異なるモデル・ベンダー間でもMCPで接続可能
 - 🛠 **シンプルな構造**: 3つのファイル（manifest, conversations, thoughts）による簡潔な設計
 - ✅ **包括的検証**: データ整合性の確認機能
-- 📋 **8つのMCPツール**: エクスポート・管理・ガイド機能を完備
+- 📋 **9つのMCPツール**: エクスポート・管理・ガイド機能を完備
 
 ## 📦 インストール・セットアップ
 
@@ -42,7 +42,7 @@ AI Assimilation MCP（Model Context Protocol）は、複数のAIモデル間で*
 
 ## 📋 MCPツール
 
-このサーバーは以下の8つのMCPツールを提供します：
+このサーバーは以下の9つのMCPツールを提供します：
 
 ### エクスポート機能
 - `export_experience_init` - 体験データエクスポートの初期化とディレクトリ構造作成

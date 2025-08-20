@@ -1,5 +1,5 @@
 /**
- * End-to-end test for the stateless export flow
+ * End-to-end test for the stateless export flow (updated for thoughts.json architecture)
  */
 
 import { promises as fs } from 'fs';
@@ -7,12 +7,10 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import { v4 as uuidv4 } from 'uuid';
 
-// Import all the tools
+// Import the tools in current architecture
 import { exportExperienceInitTool } from '../tools/exportExperienceInit.js';
 import { exportExperienceConversationsTool } from '../tools/exportExperienceConversations.js';
-import { exportExperienceInsightsTool } from '../tools/exportExperienceInsights.js';
-import { exportExperiencePatternsTool } from '../tools/exportExperiencePatterns.js';
-import { exportExperiencePreferencesTool } from '../tools/exportExperiencePreferences.js';
+import { exportExperienceThoughtsTool } from '../tools/exportExperienceThoughts.js';
 import { exportExperienceFinalizeTool } from '../tools/exportExperienceFinalize.js';
 import { getExportStatusTool } from '../tools/getExportStatus.js';
 
@@ -23,7 +21,7 @@ import { loadConfig } from '../config/index.js';
 
 const mockedLoadConfig = loadConfig as jest.Mock;
 
-describe('Stateless Export Flow E2E Test', () => {
+describe('Stateless Export Flow E2E Test (thoughts-based)', () => {
   let testBaseDir: string;
   const sessionId = `e2e-test-${uuidv4()}`;
 
@@ -34,7 +32,7 @@ describe('Stateless Export Flow E2E Test', () => {
     mockedLoadConfig.mockReturnValue({
       storage: {
         baseDirectory: testBaseDir,
-        conversationBatchSize: 2, // Use a small batch size for testing
+        conversationBatchSize: 2, // small batch size for testing
       },
       server: {
         version: '1.0.0-test',
@@ -55,11 +53,9 @@ describe('Stateless Export Flow E2E Test', () => {
       summary: {
         ai_name: 'Test E2E AI',
         ai_context: 'Testing the full export flow',
-        experience_nature: 'A test experience',
         experience_summary: 'This is a summary of the test.',
         experience_flow: ['init', 'add data', 'finalize'],
         main_topics: ['testing', 'stateless'],
-        estimated_conversations: 3,
       },
     };
 
@@ -81,8 +77,8 @@ describe('Stateless Export Flow E2E Test', () => {
       session_id: sessionId,
       batch_number: 1,
       conversations_batch: [
-        { timestamp: new Date().toISOString(), user_input: 'q1', ai_response: 'a1' },
-        { timestamp: new Date().toISOString(), user_input: 'q2', ai_response: 'a2' },
+        { timestamp: new Date().toISOString(), user_input: 'q1', ai_response: 'a1', reasoning: 'r1' },
+        { timestamp: new Date().toISOString(), user_input: 'q2', ai_response: 'a2', reasoning: 'r2' },
       ],
     };
 
@@ -94,30 +90,20 @@ describe('Stateless Export Flow E2E Test', () => {
     expect(data.processed_count).toBe(2);
   });
 
-  test('Step 3: export_experience_insights, patterns, and preferences should write their files', async () => {
-    const insightsResult = await exportExperienceInsightsTool.execute({
+  test('Step 3: export_experience_thoughts should write its file', async () => {
+    const thoughtsResult = await exportExperienceThoughtsTool.execute({
       session_id: sessionId,
-      insights: [{ topic: 'test', insight: 'it works', timestamp: new Date().toISOString() }],
+      thoughts: {
+        insights: [{ topic: 'test', insight: 'it works', timestamp: new Date().toISOString() }],
+        patterns: [{ pattern_type: 'test', description: 'it works' }],
+        preferences: { user_preferences: { theme: 'dark' } },
+      },
     });
-    expect(JSON.parse(insightsResult.content[0].text).success).toBe(true);
+    expect(JSON.parse(thoughtsResult.content[0].text).success).toBe(true);
 
-    const patternsResult = await exportExperiencePatternsTool.execute({
-      session_id: sessionId,
-      reasoning_patterns: [{ pattern_type: 'test', description: 'it works' }],
-    });
-    expect(JSON.parse(patternsResult.content[0].text).success).toBe(true);
-
-    const prefsResult = await exportExperiencePreferencesTool.execute({
-      session_id: sessionId,
-      learned_preferences: { user_preferences: { theme: 'dark' } },
-    });
-    expect(JSON.parse(prefsResult.content[0].text).success).toBe(true);
-
-    // Check that files were actually created
+    // Check that file was actually created
     const files = await fs.readdir(experienceDirPath);
-    expect(files).toContain('insights.json');
-    expect(files).toContain('patterns.json');
-    expect(files).toContain('preferences.json');
+    expect(files).toContain('thoughts.json');
   });
 
   test('Step 4: get_export_status should report "in_progress"', async () => {
@@ -134,7 +120,9 @@ describe('Stateless Export Flow E2E Test', () => {
 
     expect(data.success).toBe(true);
     expect(data.manifest_path).toContain('manifest.json');
-    expect(data.total_files).toBe(5); // manifest, conversations, insights, patterns, preferences
+
+    // After finalize, we expect manifest + conversations + thoughts
+    expect(data.total_files).toBe(3);
 
     // Check that manifest.json was created
     const manifestExists = await fs.access(data.manifest_path).then(() => true).catch(() => false);
@@ -150,6 +138,7 @@ describe('Stateless Export Flow E2E Test', () => {
     expect(manifestContent.ai_name).toBe('Test E2E AI');
     expect(manifestContent.total_conversations).toBe(2);
     expect(manifestContent.files.conversations).toEqual(['conversations_001.json']);
+    expect(manifestContent.files.thoughts).toBe('thoughts.json');
   });
 
   test('Step 6: get_export_status should report "completed"', async () => {

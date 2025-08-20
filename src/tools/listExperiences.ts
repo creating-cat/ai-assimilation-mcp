@@ -54,7 +54,7 @@ export interface ListExperiencesOutput {
 
 export const listExperiencesTool = {
   name: 'list_experiences',
-  description: `保存されている体験データを検索・一覧表示します。学習したい経験を見つけるために使用します。フィルタ機能で条件を絞り込めます。`,
+  description: `保存されている体験データを検索・一覧表示します。同化したい経験を見つけるために使用します。フィルタ機能で条件を絞り込めます。`,
   input_schema: listExperiencesSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

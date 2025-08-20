@@ -19,7 +19,7 @@ export type ValidateExperienceInput = z.infer<typeof validateExperienceSchema>;
 
 export const validateExperienceTool = {
   name: 'validate_experience',
-  description: `体験データの整合性を検証します。他のAIの経験を学習する前に、データの品質と安全性を確認するために使用してください。`,
+  description: `体験データの整合性を検証します。他のAIの経験を同化する前に、データの品質と安全性を確認するために使用してください。`,
   input_schema: validateExperienceSchema,
 
   async execute(args: any): Promise<{ content: Array<{ type: 'text'; text: string }> }> {

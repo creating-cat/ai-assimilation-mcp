@@ -1,6 +1,6 @@
 {
   "name": "@creating-cat/ai-assimilation-mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "AI Assimilation MCP Server - Enable AI experience sharing and assimilation through structured data export and human-like learning",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
